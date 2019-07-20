@@ -1,0 +1,5 @@
+.idea/
+_*/
+*.iml
+node_modules/
+public/js/app.js

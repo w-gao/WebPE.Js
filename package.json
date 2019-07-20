@@ -1,0 +1,16 @@
+{
+  "name": "webpe.js",
+  "version": "1.0.0",
+  "description": "Implementation of the Minecraft Bedrock Edition network protocol in Javascript",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "browserify src/index.ts -p [ tsify --noImplicitAny ] > public/js/app.js"
+  },
+  "author": "w-gao",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^16.3.0",
+    "tsify": "^4.0.1",
+    "typescript": "^3.5.3"
+  }
+}
