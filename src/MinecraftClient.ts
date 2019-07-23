@@ -10,6 +10,10 @@ export default class MinecraftClient {
     private _inboundHandler: InboundHandler;
     private _outboundHandler: OutBoundHandler;
 
+    // private _connectedToServer: boolean = false;        // Minecraft server; not WebSocket server
+    private _hasSpawned: boolean = false;
+
+
     constructor(host?: string, port?: number) {
 
         host = host ? host : '0.0.0.0';
@@ -55,22 +59,13 @@ export default class MinecraftClient {
     private onMessage(ev: MessageEvent) {
 
         console.log('onMessage');
+
         // todo: check for MAGIC once we implement our own handshake sequence
 
         let pk = new BinaryReader(ev.data);         // no need to pool inbound packets for now, b/c they have fixed sizes
 
         // should be one packet per message
         this._inboundHandler.handlePacket(pk);
-    }
-
-    public getInBoundHandler(): InboundHandler {
-
-        return this._inboundHandler;
-    }
-
-    public getOutBoundHandler(): OutBoundHandler {
-
-        return this._outboundHandler;
     }
 
     /**
@@ -84,5 +79,27 @@ export default class MinecraftClient {
         this._websocket.send(pk);
     }
 
+    /* *** Getters & Setters **/
+
+    get inboundHandler(): InboundHandler {
+        return this._inboundHandler;
+    }
+
+    get outboundHandler(): OutBoundHandler {
+        return this._outboundHandler;
+    }
+
+
+    // get connectedToServer(): boolean {
+    //     return this._connectedToServer;
+    // }
+
+    get hasSpawned(): boolean {
+        return this._hasSpawned;
+    }
+
+    set hasSpawned(value: boolean) {
+        this._hasSpawned = value;
+    }
 
 }

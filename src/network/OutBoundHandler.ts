@@ -42,7 +42,7 @@ export default class OutBoundHandler {
 
             uuid: '09b6c89c-428c-4ef3-a0c0-51562d9d373a',
             xuid: '2d9d373a',
-            displayName: 'WebPE',
+            displayName: 'WebPE测试',
             cid: -3911347568285239894,      // ClientRandomId
 
         };
@@ -74,15 +74,36 @@ export default class OutBoundHandler {
         const packet = PacketPool.getPacket();
         packet.packUnsignedVarInt(ProtocolId.Login);
 
-        packet.packInt(319);            // protocol
+        packet.packInt(354);            // protocol
 
         packet.packUnsignedVarInt(chainData.length + skinData.length + 8);      // 2 lengths + 2 LEInt
-        packet.packStringLEInt(chainData);
-        packet.packStringLEInt(skinData);
+        packet.packLIntString(chainData);
+        packet.packLIntString(skinData);
 
         this.sendPacket(packet);
     }
 
+    public sendResourcePackClientResponse(status: number, ids?: string[]) {
+
+        /**
+         * Status code constants
+         * 1        REFUSED
+         * 2        SEND_PACKS
+         * 3        HAVE_ALL_PACKS
+         * 4        COMPLETED
+         */
+
+        const packet = PacketPool.getPacket();
+        packet.packUnsignedVarInt(ProtocolId.ResourcePackClientResponse);
+        packet.packByte(status);
+        if (ids == undefined) {
+            packet.packShort(0);
+        } else {
+            packet.packShort(ids.length);
+            ids.forEach(id => packet.packString(id));
+        }
+        this.sendPacket(packet);
+    }
 
     /**
      * Helper function

@@ -1,20 +1,26 @@
 /**
  * Experimental utility for object pooling
  */
-export default class Pool<T> {
+
+export class PoolObject {
+    public id: number = -1;
+    public active: boolean = false;
+}
+
+export default class Pool<T extends PoolObject> {
 
     private size: number;
     private readonly originalSize: number;
-    private readonly construct: any;
-    private readonly objects: any[];
+    private readonly constructFunc: () => T;
+    private readonly objects: T[];
     private offset: number;
     private numActive: number;
 
-    constructor(construct, size: number) {
+    constructor(constructFunc, size: number) {
 
         this.size = 0;
         this.originalSize = size;
-        this.construct = construct;
+        this.constructFunc = constructFunc;
         this.objects = [];
         this.offset = 0;
         this.numActive = 0;
@@ -25,7 +31,7 @@ export default class Pool<T> {
     public expand(num: number): void {
 
         for (let i = 0; i < num; i++) {
-            const obj = this.construct();
+            const obj = this.constructFunc();
             obj.id = i + this.size;
             obj.active = false;
             this.objects.push(obj);
@@ -50,7 +56,7 @@ export default class Pool<T> {
         } while (i != this.offset);
 
         this.expand(this.originalSize);
-        console.log('[Pool] Expanding \'' + this.objects[0].constructor.name + '\' to ' + this.size);
+        console.warn('[Pool] Expanding \'' + this.objects[0].constructor.name + '\' to ' + this.size);
         return this.retrieve();
     }
 

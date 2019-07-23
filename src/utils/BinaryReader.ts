@@ -1,6 +1,7 @@
 import {Buffer} from "buffer";
-import Long = require("long");
 import VarInt from "./VarInt";
+import ResourcePacksInfo, {PackIdVersion} from "../data/ResourcePacksInfo";
+import Long = require("long");
 
 export default class BinaryReader {
 
@@ -12,7 +13,7 @@ export default class BinaryReader {
         this.offset = 0;
     }
 
-    public unreadBytes() {
+    public unreadBytes(): number {
         return Math.max(0, this.buffer.length - this.offset);
     }
 
@@ -66,22 +67,59 @@ export default class BinaryReader {
         return this.buffer[i];
     }
 
+    public unpackByteArray(): Uint8Array {
+        return this.unpack(this.unpackUnsignedVarInt().toInt());
+    }
+
+    public unpackBoolean(): boolean {
+        const i = this.offset;
+        this.offset++;
+        return this.buffer[i] != 0;
+    }
+
     public unpackShort(): number {
         const i = this.offset;
         this.offset += 2;
-        return ((this.buffer[i] & 255) << 8) + (this.buffer[i + 1] & 255)
+        return this.buffer.readUInt16BE(i);
+    }
+
+    public unpackLShort(): number {
+        const i = this.offset;
+        this.offset += 2;
+        return this.buffer.readUInt16LE(i);
+    }
+
+    public unpackSignedShort(): number {
+        const i = this.offset;
+        this.offset += 2;
+        return this.buffer.readInt16BE(i);
+    }
+
+    public unpackSignedLShort(): number {
+        const i = this.offset;
+        this.offset += 2;
+        return this.buffer.readInt16LE(i);
     }
 
     public unpackInt(): number {
         const i = this.offset;
         this.offset += 4;
-        return ((this.buffer[i] & 255) << 24)
-            + ((this.buffer[i + 1] & 255) << 16)
-            + ((this.buffer[i + 2] & 255) << 8)
-            + ((this.buffer[i + 3] & 255))
+        return this.buffer.readInt32BE(i);
+    }
+
+    public unpackLInt(): number {
+        const i = this.offset;
+        this.offset += 4;
+        return this.buffer.readInt32LE(i);
     }
 
     public unpackFloat(): number {
+        const i = this.offset;
+        this.offset += 4;
+        return this.buffer.readFloatBE(i);
+    }
+
+    public unpackLFloat(): number {
         const i = this.offset;
         this.offset += 4;
         return this.buffer.readFloatLE(i);
@@ -90,22 +128,25 @@ export default class BinaryReader {
     public unpackDouble(): number {
         const i = this.offset;
         this.offset += 8;
+        return this.buffer.readDoubleBE(i);
+    }
+
+    public unpackLDouble(): number {
+        const i = this.offset;
+        this.offset += 8;
         return this.buffer.readDoubleLE(i);
     }
 
+    public unpackLong(): Long {
+        return Long.fromBytesBE(Array.from(this.unpack(8)));
+    }
+
+    public unpackLLong(): Long {
+        return Long.fromBytesLE(Array.from(this.unpack(8)));
+    }
+
     public unpackString(): string {
-
-        const len = Math.min(this.unpackShort(), 1000);
-
-        if (this.unreadBytes() * 2 < len) return undefined;
-        let str = String();
-
-        for (let i = 0; i < len; i++) {
-            const char = this.unpackShort();
-            char > 0 && (str += String.fromCharCode(char));
-        }
-
-        return str;
+        return this.unpack(this.unpackUnsignedVarInt().toInt()).toString();
     }
 
     public unpackUnsignedVarInt(): Long {
@@ -142,6 +183,56 @@ export default class BinaryReader {
 
     public unpackVarLong(): Long {
         return VarInt.decodeZigZag64(this.unpackUnsignedVarLong());
+    }
+
+
+    // Minecraft datatype
+
+
+    public unpackResourcePacksInfo(): ResourcePacksInfo[] {
+
+        let count: number = this.unpackLShort(); // LE
+
+        const packInfos: ResourcePacksInfo[] = [];
+        for (let i = 0; i < count; i++) {
+            const id = this.unpackString();
+            const version = this.unpackString();
+            const size = this.unpackLong();
+            const encryptionKey = this.unpackString();
+            const subpackName = this.unpackString();
+            const contentIdentity = this.unpackString();
+            const hasScripts = this.unpackBoolean();
+
+            const info: ResourcePacksInfo = {
+                packIdVersion: {
+                    id: id,
+                    version: version,
+                    unknown: ''
+                },
+                size: size,
+                hasScripts: hasScripts
+            };
+            packInfos.push(info);
+        }
+
+        return packInfos;
+    }
+
+    public unpackResourcePackVersion(): PackIdVersion[] {
+
+        let count: number = this.unpackUnsignedVarInt().toInt();
+
+        const infos: PackIdVersion[] = [];
+
+        for (let i = 0; i < count; i++) {
+            infos.push({
+                id: this.unpackString(),
+                version: this.unpackString(),
+                unknown: this.unpackString()
+            });
+        }
+
+        return infos;
     }
 
 }

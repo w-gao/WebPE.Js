@@ -3,6 +3,7 @@ import Utils from "../utils/Utils";
 import BatchUtils from "../utils/BatchUtils";
 import {ProtocolId} from "./Protocol";
 import MinecraftClient from "../MinecraftClient";
+import ResourcePacksInfo from "../data/ResourcePacksInfo";
 
 
 /**
@@ -30,10 +31,18 @@ export default class InboundHandler {
             case 0xfe:      // batch
                 BatchUtils.handleBatchPacket(pk).forEach(pk => this.handlePacket(pk));
                 break;
-
             case ProtocolId.PlayStatus:
-
                 this.handlePlayStatus(pk);
+                break;
+            case ProtocolId.ResourcePacksInfo:
+                this.handleResourcePacksInfo(pk);
+                break;
+            case ProtocolId.ResourcePackStack:
+                this.handleResourcePackStack(pk);
+                break;
+
+            case ProtocolId.Text:
+                this.handleText(pk);
                 break;
         }
 
@@ -67,15 +76,112 @@ export default class InboundHandler {
                 console.log('LOGIN_FAILED_SERVER');
                 break;
             case 3:
+                this.client.hasSpawned = true;
                 console.log('PLAYER_SPAWN');
                 break;
             default:
-                console.warn('Unknown status code sent from server.');
+                // 4, 5, and 6 are known, but shouldn't be sent
+                console.warn('Unknown Player Status sent from server.');
+                break;
+        }
+    }
+
+    public handleResourcePacksInfo(pk: BinaryReader) {
+
+        let mustAccept = pk.unpackBoolean();
+        let hasScripts = pk.unpackBoolean();
+
+        console.log(`ResourcePacksInfo - mustAccept=${mustAccept},hasScripts=${hasScripts}`);
+
+        let behaviorInfos: ResourcePacksInfo[] = pk.unpackResourcePacksInfo();
+        if (behaviorInfos.length == 0) {
+            console.log(`Received 0 behavior packs`);
+        } else {
+            behaviorInfos.forEach(info => {
+                console.log(`Received pack ${info.packIdVersion.id} - ${info.packIdVersion.version}`);
+            });
+        }
+
+        let resourceInfos: ResourcePacksInfo[] = pk.unpackResourcePacksInfo();
+        if (resourceInfos.length == 0) {
+            console.log(`Received 0 resource packs`);
+            this.client.outboundHandler.sendResourcePackClientResponse(3);
+        } else {
+
+            let ids: string[] = [];
+
+            resourceInfos.forEach(info => {
+                console.log(`Received pack ${info.packIdVersion.id} - ${info.packIdVersion.version}`);
+                ids.push(info.packIdVersion.id);
+            });
+
+            this.client.outboundHandler.sendResourcePackClientResponse(2, ids);
+        }
+    }
+
+    public handleResourcePackStack(pk: BinaryReader) {
+
+        let mustAccept = pk.unpackBoolean();
+        let behaviorVersions = pk.unpackResourcePackVersion();
+        let resourceVersions = pk.unpackResourcePackVersion();
+        let isExperimental = pk.unpackBoolean();
+
+        console.log(`Received pack stack mustAccept=${mustAccept},isExperimental=${isExperimental}`);
+
+        this.client.outboundHandler.sendResourcePackClientResponse(4);
+    }
+
+
+    public handleText(pk: BinaryReader) {
+
+        /**
+         * Text type constants
+         * 0        RAW
+         * 1        CHAT
+         * 2        TRANSLATION
+         * 3        POPUP
+         * 4        JUKE_BOX_POPUP
+         * 5        TIP
+         * 6        SYSTEM
+         * 7        WHISPER
+         * 8        ANNOUNCEMENT
+         */
+
+        let type = pk.unpackByte();
+        let isLocalized = pk.unpackBoolean();
+
+        let message: string;
+        let parameters: string[] = [];
+        let primaryName: string;
+
+        switch (type) {
+            case 0:
+            case 5:
+            case 6:
+                message = pk.unpackString();
+                break;
+            case 1:
+            case 7:
+            case 8:
+                primaryName = pk.unpackString();
+                message = pk.unpackString();
+                break;
+            case 2:
+            case 3:
+            case 4:
+                message = pk.unpackString();
+                let count = pk.unpackVarInt();
+                for (let i = 0; i < count; i++) {
+                    parameters.push(pk.unpackString());
+                }
                 break;
         }
 
-        // respond
+        let senderXUID = pk.unpackString();
+        let platformIdString = pk.unpackString();
 
+        console.log(`[TEXT - ${type}] ${primaryName}: ${message}`);
+        console.log(parameters.join());
     }
 
 }
