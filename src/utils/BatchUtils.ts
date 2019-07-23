@@ -2,18 +2,19 @@ import pako = require("pako");
 import {Buffer} from "buffer";
 import BinaryWriter from "./BinaryWriter";
 import BinaryReader from "./BinaryReader";
+import MinecraftClient from "../MinecraftClient";
 
 export class BatchPool {
 
     private batchPool: BinaryWriter[] = [];
     private processing = false;
 
+    private readonly client: MinecraftClient;
     private readonly packet = new BinaryWriter(128 * 1024);
-    private readonly websocket: WebSocket;
 
-    constructor(ws: WebSocket) {
+    constructor(client: MinecraftClient) {
 
-        this.websocket = ws;
+        this.client = client;
 
         (window as any).batch = this;
     }
@@ -47,7 +48,7 @@ export class BatchPool {
         pk.set(compressed, 1);      // data
         /* --- */
 
-        this.websocket.send(pk);
+        this.client.sendPacket(pk);
 
         // empty the list
         this.batchPool.length = 0;
@@ -59,7 +60,7 @@ export class BatchPool {
     public pushPacket(pk: BinaryWriter, direct: boolean = false) {
 
         if (direct) {
-            this.websocket.send(pk.getBuffer());
+            this.client.sendPacket(pk.getBuffer());
             pk.recycle();
         }
 
@@ -73,11 +74,25 @@ export default class BatchUtils {
     /**
      * This method takes care of decoding the incoming batch packet.
      *
-     * @return decoded packets
+     * @return decoded packets (pid is unread)
      */
-    public static handleBatchPacket(pk: BinaryReader): BinaryWriter[] {
+    public static handleBatchPacket(pk: BinaryReader): BinaryReader[] {
 
+        // first byte (packet id) should already be read
 
-        return null;
+        let packets: BinaryReader[] = [];
+
+        let data = new BinaryReader(pako.inflate(pk.unpackAll()));
+        while (data.unreadBytes() != 0) {
+
+            let len: number = data.unpackUnsignedVarInt().toInt();
+            packets.push(new BinaryReader(data.unpack(len)));
+        }
+
+        if (packets.length == 0) {
+            console.warn('0 packets in batch packet. ')
+        }
+
+        return packets;
     }
 }
