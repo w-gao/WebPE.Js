@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "noImplicitAny": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "rootDir": ".",
+    "sourceMap": false,
+    "typeRoots": [
+      "./node_modules/long",
+      "./node_modules/base64-url"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

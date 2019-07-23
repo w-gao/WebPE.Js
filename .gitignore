@@ -1,5 +1,6 @@
 .idea/
 _*/
+dist/
 *.iml
 node_modules/
 public/js/app.js

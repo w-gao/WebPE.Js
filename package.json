@@ -4,13 +4,22 @@
   "description": "Implementation of the Minecraft Bedrock Edition network protocol in Javascript",
   "main": "src/index.js",
   "scripts": {
-    "dev": "browserify src/index.ts -p [ tsify --noImplicitAny ] > public/js/app.js"
+    "dev": "browserify src/index.ts -p [ tsify ] > public/js/app.js"
   },
   "author": "w-gao",
   "license": "ISC",
   "devDependencies": {
+    "@types/node-jose": "^1.1.0",
     "browserify": "^16.3.0",
     "tsify": "^4.0.1",
     "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "base64-url": "^2.3.2",
+    "buffer": "^5.2.1",
+    "long": "github:dcodeIO/long.js",
+    "node-jose": "^1.1.3",
+    "pako": "^1.0.10",
+    "uuid": "^3.3.2"
   }
 }

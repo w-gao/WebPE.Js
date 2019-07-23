@@ -1,4 +1,7 @@
+import MinecraftClient from "./MinecraftClient";
+import DefaultNetworkSession from "./network/DefaultNetworkSession";
 
-let x: number = 10;
-
-console.log('test: ' + x);
+let client = new MinecraftClient(undefined, 19133);
+client.connect(
+    new DefaultNetworkSession(client)
+);
