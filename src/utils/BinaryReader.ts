@@ -2,6 +2,10 @@ import {Buffer} from "buffer";
 import VarInt from "./VarInt";
 import ResourcePacksInfo, {PackIdVersion} from "../data/ResourcePacksInfo";
 import Long = require("long");
+import BlockVector3 from "../math/BlockVector3";
+import Vector3 from "../math/Vector3";
+import GameRule from "../data/GameRule";
+import BlockPalette from "../data/BlockPalette";
 
 export default class BinaryReader {
 
@@ -39,7 +43,7 @@ export default class BinaryReader {
 
     public unpack(len?: number): Uint8Array {
 
-        if (len == undefined || len == 0) {
+        if (len == undefined) {
             len = this.buffer.length;
         } else {
             len += this.offset;
@@ -74,6 +78,7 @@ export default class BinaryReader {
     public unpackBoolean(): boolean {
         const i = this.offset;
         this.offset++;
+        if (this.buffer[i] != 0 && this.buffer[i] != 1) console.warn('Unexpected boolean');
         return this.buffer[i] != 0;
     }
 
@@ -151,16 +156,20 @@ export default class BinaryReader {
 
     public unpackUnsignedVarInt(): Long {
 
-        const MAX_SIZE = 5;
+        let numRead: number = 0;
+        let result: Long = new Long(0, 0, true);
+        let read: number;       // byte
+        do {
+            read = this.unpackByte();
+            result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
 
-        let value: Long = new Long(0);
-        let size: number = 0;
-        let b: number;
-        while (((b = this.unpackByte()) & 0x80) == 0x80) {
-            value = value.or((b & 0x7F) << (size++ * 7));
-            if (size >= MAX_SIZE) throw new Error("VarInt too big");
-        }
-        return value.or((b & 0x7F) << (size * 7));
+            numRead++;
+            if (numRead > 5) {
+                throw new Error("VarInt is too big");
+            }
+        } while ((read & 0b10000000) != 0);
+
+        return result;
     }
 
     public unpackVarInt(): number {
@@ -169,16 +178,20 @@ export default class BinaryReader {
 
     public unpackUnsignedVarLong(): Long {
 
-        const MAX_SIZE = 10;
+        let numRead: number = 0;
+        let result: Long = new Long(0, 0, true);
+        let read: number;       // byte
+        do {
+            read = this.unpackByte();
+            result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
 
-        let value: Long = new Long(0);
-        let size: number = 0;
-        let b: number;
-        while (((b = this.unpackByte()) & 0x80) == 0x80) {
-            value = value.or((b & 0x7F) << (size++ * 7));
-            if (size >= MAX_SIZE) throw new Error("VarLong too big");
-        }
-        return value.or((b & 0x7F) << (size * 7));
+            numRead++;
+            if (numRead > 10) {
+                throw new Error("VarLong is too big");
+            }
+        } while ((read & 0b10000000) != 0);
+
+        return result;
     }
 
     public unpackVarLong(): Long {
@@ -234,5 +247,63 @@ export default class BinaryReader {
 
         return infos;
     }
+
+    public unpackBlockVector3(): BlockVector3 {
+
+        return new BlockVector3(this.unpackVarInt(), this.unpackUnsignedVarInt().toInt(), this.unpackVarInt());
+    }
+
+    public unpackVector3(): Vector3 {
+
+        return new Vector3(this.unpackLFloat(), this.unpackLFloat(), this.unpackLFloat());
+    }
+
+    public unpackGameRules(): GameRule[] {
+
+        let count: number = this.unpackUnsignedVarInt().toInt();
+
+        const gameRules: GameRule[] = [];
+
+        for (let i = 0; i < count; i++) {
+            let name: string = this.unpackString();
+            let type: number = this.unpackUnsignedVarInt().toInt();
+
+            switch (type) {
+                case 1: {
+                    gameRules.push(new GameRule(name, type, this.unpackBoolean()));
+                    break;
+                }
+                case 2: {
+                    gameRules.push(new GameRule(name, type, this.unpackVarInt()));
+                    break;
+                }
+                case 3: {
+                    gameRules.push(new GameRule(name, type, this.unpackFloat()));
+                    break;
+                }
+            }
+        }
+
+        return gameRules;
+    }
+
+    public unpackBlockPalettes(): BlockPalette[] {
+
+        let count: number = this.unpackUnsignedVarInt().toInt();
+
+        const blockPalettes: BlockPalette[] = [];
+
+        for (let i = 0; i < count; i++) {
+            blockPalettes.push({
+                id: -1,
+                runtimeId: i,
+                name: this.unpackString(),
+                data: this.unpackShort()
+            });
+        }
+
+        return blockPalettes;
+    }
+
 
 }

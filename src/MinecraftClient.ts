@@ -79,6 +79,11 @@ export default class MinecraftClient {
         this._websocket.send(pk);
     }
 
+    public disconnect(sendNotification: boolean = true) {
+
+        this._websocket.close(1000, 'client disconnect');
+    }
+
     /* *** Getters & Setters **/
 
     get inboundHandler(): InboundHandler {

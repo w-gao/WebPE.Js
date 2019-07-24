@@ -4,6 +4,7 @@ import BatchUtils from "../utils/BatchUtils";
 import {ProtocolId} from "./Protocol";
 import MinecraftClient from "../MinecraftClient";
 import ResourcePacksInfo from "../data/ResourcePacksInfo";
+import StartGameInfo from "../data/StartGameInfo";
 
 
 /**
@@ -25,7 +26,7 @@ export default class InboundHandler {
 
         const pid: number = pk.unpackByte();
         const pidHex = Utils.toHexString(pid);
-        console.log('Received packet ID: ' + pidHex);
+        pid != 0xfe && console.log(`Received packet ID: ${pidHex}, size=${pk.buffer.length}`);
         switch (pid) {
 
             case 0xfe:      // batch
@@ -40,9 +41,16 @@ export default class InboundHandler {
             case ProtocolId.ResourcePackStack:
                 this.handleResourcePackStack(pk);
                 break;
-
             case ProtocolId.Text:
                 this.handleText(pk);
+                break;
+            case ProtocolId.StartGame:
+                this.handleStartGame(pk);
+                break;
+
+            case ProtocolId.FullChunkData:
+
+
                 break;
         }
 
@@ -51,7 +59,11 @@ export default class InboundHandler {
             console.warn('[' + pidHex + '] Still has ' + pk.unreadBytes() + ' bytes to read!')
 
             let buff = pk.unpackAll();
-            console.log(Utils.toHexString(buff, '0x'));
+            if (buff.length < 100) {
+                console.log(Utils.toHexString(buff, '0x'));
+            } else {
+                console.log('too large to display.')
+            }
         }
     }
 
@@ -183,5 +195,62 @@ export default class InboundHandler {
         console.log(`[TEXT - ${type}] ${primaryName}: ${message}`);
         console.log(parameters.join());
     }
+
+    public handleStartGame(pk: BinaryReader) {
+
+        let startGameInfo: StartGameInfo = {
+
+            entityIdSelf: pk.unpackVarLong(),
+            runtimeEntityId: pk.unpackUnsignedVarLong(),
+            playerGamemode: pk.unpackVarInt(),
+            position: pk.unpackVector3(),
+            yaw: pk.unpackLFloat(),
+            pitch: pk.unpackLFloat(),
+            seed: pk.unpackVarInt(),
+            dimension: pk.unpackVarInt(),
+            generator: pk.unpackVarInt(),
+            gamemode: pk.unpackVarInt(),
+            difficulty: pk.unpackVarInt(),
+            spawn: pk.unpackBlockVector3(),
+            hasAchievementsDisabled: pk.unpackBoolean(),
+            dayCycleStopTime: pk.unpackVarInt(),
+            eduMode: pk.unpackBoolean(),
+            hasEduFeaturesEnabled: pk.unpackBoolean(),
+            rainLevel: pk.unpackLFloat(),
+            lightningLevel: pk.unpackLFloat(),
+            hasConfirmedPlatformLockedContent: pk.unpackBoolean(),
+            isMultiplayer: pk.unpackBoolean(),
+            broadcastToLan: pk.unpackBoolean(),
+            xboxLiveBroadcastMode: pk.unpackVarInt(),
+            platformBroadcastMode: pk.unpackVarInt(),
+            enableCommands: pk.unpackBoolean(),
+            isTexturepacksRequired: pk.unpackBoolean(),
+            gameRules: pk.unpackGameRules(),
+            bonusChest: pk.unpackBoolean(),
+            mapEnabled: pk.unpackBoolean(),
+            permissionLevel: pk.unpackVarInt(),
+            serverChunkTickRange: pk.unpackLInt(),
+            hasLockedBehaviorPack: pk.unpackBoolean(),
+            hasLockedResourcePack: pk.unpackBoolean(),
+            isFromLockedWorldTemplate: pk.unpackBoolean(),
+            useMsaGamertagsOnly: pk.unpackBoolean(),
+            isFromWorldTemplate: pk.unpackBoolean(),
+            isWorldTemplateOptionLocked: pk.unpackBoolean(),
+            levelId: pk.unpackString(),
+            worldName: pk.unpackString(),
+            premiumWorldTemplateId: pk.unpackString(),
+            isTrial: pk.unpackBoolean(),
+            currentTick: pk.unpackLLong(),
+            enchantmentSeed: pk.unpackVarInt(),
+            blockPalettes: pk.unpackBlockPalettes(),
+            multiplayerCorrelationId: pk.unpackString()
+        };
+
+        console.log('START GAME');
+        console.log(startGameInfo);
+
+        //
+    }
+
 
 }

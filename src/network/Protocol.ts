@@ -19,6 +19,7 @@ export const ProtocolId = {
     AddEntity: 0x0d,                        // 13
     RemoveEntity: 0x0e,                     // 14
     AddItemEntity: 0x0f,                    // 15
+
     TakeItemEntity: 0x11,                   // 17
     MoveEntity: 0x12,                       // 18
     MovePlayer: 0x13,                       // 19
@@ -34,6 +35,7 @@ export const ProtocolId = {
     UpdateAttributes: 0x1d,                 // 29
     InventoryTransaction: 0x1e,             // 30
     MobEquipment: 0x1f,                     // 31
+
     MobArmorEquipment: 0x20,                // 32
     Interact: 0x21,                         // 33
     BlockPickRequest: 0x22,                 // 34
@@ -50,6 +52,7 @@ export const ProtocolId = {
     Respawn: 0x2d,                          // 45
     ContainerOpen: 0x2e,                    // 46
     ContainerClose: 0x2f,                   // 47
+
     PlayerHotbar: 0x30,                     // 48
     InventoryContent: 0x31,                 // 49
     InventorySlot: 0x32,                    // 50
@@ -63,66 +66,70 @@ export const ProtocolId = {
     FullChunkData: 0x3a,                    // 58
     SetCommandsEnabled: 0x3b,               // 59
     SetDifficulty: 0x3c,                    // 60
-    // Change Dimension 0x3d 61
-    // Set Player Game Type 0x3e 62
-    // Player List 0x3f 63
-    // Simple Event 0x40 64
-    // Telemetry Event 0x41 65
-    // Spawn Experience Orb 0x42 66
-    // Clientbound Map Item Data 0x43 67
-    // Map Info Request 0x44 68
-    RequestChunkRadius: 0x45,       // 69
-    ChunkRadiusUpdate: 0x46, //      70
-    // Item Frame Drop Item 0x47 71
-    // Game Rules Changed 0x48 72
-    // Camera 0x49 73
-    // Boss Event 0x4a 74
-    // Show Credits 0x4b 75
-    // Available Commands 0x4c 76
-    // Command Request 0x4d 77
-    // Command Block Update 0x4e 78
-    // Command Output 0x4f 79
-    // Update Trade 0x50 80
-    // Update Equipment 0x51 81
-    // Resource Pack Data Info 0x52 82
-    // Resource Pack Chunk Data 0x53 83
-    // Resource Pack Chunk Request 0x54 84
-    Transfer: 0x55, //      85
-    // Play Sound 0x56 86
-    // Stop Sound 0x57 87
-    // Set Title 0x58 88
-    // Add Behavior Tree 0x59 89
-    // Structure Block Update 0x5a 90
-    // Show Store Offer 0x5b 91
-    // Purchase Receipt 0x5c 92
-    // Player Skin 0x5d 93
-    // Sub Client Login 0x5e 94
-    // Initiate Web Socket Connection 0x5f 95
-    // Set Last Hurt By 0x60 96
-    // Book Edit 0x61 97
-    // Npc Request 0x62 98
-    // Photo Transfer 0x63 99
-    // Modal Form Request 0x64 100
-    // Modal Form Response 0x65 101
-    // Server Settings Request 0x66 102
-    // Server Settings Response 0x67 103
-    // Show Profile 0x68 104
-    SetDefaultGameType: 0x69,        // 105
-    // Remove Objective 0x6a 106
-    // Set Display Objective 0x6b 107
-    // Set Score 0x6c 108
-    // Lab Table 0x6d 109
-    // Update Block Synced 0x6e 110
-    // Move Entity Delta 0x6f 111
-    // Set Scoreboard Identity Packet 0x70 112
-    // Set Local Player As Initialized Packet 0x71 113
-    // Update Soft Enum Packet 0x72 114
-    // Network Stack Latency Packet 0x73 115
-    // Script Custom Event Packet 0x75 117
-    // Spawn Particle Effect 0x76 118
-    // Available Entity Identifiers 0x77 119
-    // Level Sound Event V2 0x78 120
-    // Network Chunk Publisher Update 0x79 121
-    // Biome Definition List 0x7a 122
-    // Level Sound Event 0x7b 123
+    ChangeDimension: 0x3d,                  // 61
+    SetPlayerGameType: 0x3e,                // 62
+    PlayerList: 0x3f,                       // 63
+
+    SimpleEvent: 0x40,                      // 64
+    TelemetryEvent: 0x41,                   // 65
+    SpawnExperienceOrb: 0x42,               // 66
+    ClientboundMapItemData: 0x43,           // 67
+    MapInfoRequest: 0x44,                   // 68
+    RequestChunkRadius: 0x45,               // 69
+    ChunkRadiusUpdate: 0x46,                // 70
+    ItemFrameDropItem: 0x47,                // 71
+    GameRulesChanged: 0x48,                 // 72
+    Camera: 0x49,                           // 73
+    BossEvent: 0x4a,                        // 74
+    ShowCredits: 0x4b,                      // 75
+    AvailableCommands: 0x4c,                // 76
+    CommandRequest: 0x4d,                   // 77
+    CommandBlockUpdate: 0x4e,               // 78
+    CommandOutput: 0x4f,                    // 79
+
+    UpdateTrade: 0x50,                      // 80
+    UpdateEquipment: 0x51,                  // 81
+    ResourcePackDataInfo: 0x52,             // 82
+    ResourcePackChunkData: 0x53,            // 83
+    ResourcePackChunkRequest: 0x54,         // 84
+    Transfer: 0x55,                         // 85
+    PlaySound: 0x56,                        // 86
+    StopSound: 0x57,                        // 87
+    SetTitle: 0x58,                         // 88
+    AddBehaviorTree: 0x59,                  // 89
+    StructureBlockUpdate: 0x5a,             // 90
+    ShowStoreOffer: 0x5b,                   // 91
+    PurchaseReceipt: 0x5c,                  // 92
+    PlayerSkin: 0x5d,                       // 93
+    SubClientLogin: 0x5e,                   // 94
+    InitiateWebSocketConnection: 0x5f,      // 95
+
+    SetLastHurtBy: 0x60,                    // 96
+    BookEdit: 0x61,                         // 97
+    NpcRequest: 0x62,                       // 98
+    PhotoTransfer: 0x63,                    // 99
+    ModalFormRequest: 0x64,                 // 100
+    ModalFormResponse: 0x65,                // 101
+    ServerSettingsRequest: 0x66,            // 102
+    ServerSettingsResponse: 0x67,           // 103
+    ShowProfile: 0x68,                      // 104
+    SetDefaultGameType: 0x69,               // 105
+    RemoveObjective: 0x6a,                  // 106
+    SetDisplayObjective: 0x6b,              // 107
+    SetScore: 0x6c,                         // 108
+    LabTable: 0x6d,                         // 109
+    UpdateBlockSynced: 0x6e,                // 110
+    MoveEntityDelta: 0x6f,                  // 111
+
+    SetScoreboardIdentityPacket: 0x70,          // 112
+    SetLocalPlayerAsInitializedPacket: 0x71,    // 113
+    UpdateSoftEnumPacket: 0x72,                 // 114
+    NetworkStackLatencyPacket: 0x73,            // 115
+    ScriptCustomEventPacket: 0x75,              // 117
+    SpawnParticleEffect: 0x76,                  // 118
+    AvailableEntityIdentifiers: 0x77,           // 119
+    LevelSoundEventV2: 0x78,                    // 120
+    NetworkChunkPublisherUpdate: 0x79,          // 121
+    BiomeDefinitionList: 0x7a,                  // 122
+    LevelSoundEvent: 0x7b,                      // 123
 };
