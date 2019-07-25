@@ -7,7 +7,7 @@ export class PoolObject {
     public active: boolean = false;
 }
 
-export default class Pool<T extends PoolObject> {
+export class Pool<T extends PoolObject> {
 
     private size: number;
     private readonly originalSize: number;

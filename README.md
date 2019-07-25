@@ -27,9 +27,8 @@ through a proxy or a server side plugin.
 
 | Package | Description/Usage |
 |:--------|------:|
-| base64-url | base64 encode for login packet |
 | buffer | Packet serialization & deserialization |
 | long | long datatype support |
-| node-jose | Not used; encryption support |
+| node-jose | base64 encode for login packet; (not used for encryption support yet) |
 | pako | zlib library |
 | uuid | Not used yet; UUID |

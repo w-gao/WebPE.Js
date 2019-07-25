@@ -1,21 +1,31 @@
 {
-  "name": "webpe.js",
-  "version": "1.0.0",
-  "description": "Implementation of the Minecraft Bedrock Edition network protocol in Javascript",
-  "main": "src/index.js",
-  "scripts": {
-    "dev": "browserify src/index.ts -p [ tsify ] > public/js/app.js"
+  "name": "@webpejs/network",
+  "version": "0.0.1",
+  "description": "Minecraft: Bedrock Edition network protocol implementation in Javascript",
+  "author": {
+    "name": "William Gao"
   },
-  "author": "w-gao",
   "license": "ISC",
+  "readme": "README.md",
+  "typings": "dist/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "files": [
+    "dist/src/**",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc --inlineSources --sourceMap true --declaration true --outDir ./dist",
+    "dev": "webpack",
+    "dist": "webpack --env=prod",
+    "pserve": "cd public/; python -m SimpleHTTPServer 8000"
+  },
   "devDependencies": {
-    "@types/node-jose": "^1.1.0",
-    "browserify": "^16.3.0",
-    "tsify": "^4.0.1",
-    "typescript": "^3.5.3"
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.5.3",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2"
   },
   "dependencies": {
-    "base64-url": "^2.3.2",
     "buffer": "^5.2.1",
     "long": "github:dcodeIO/long.js",
     "nbt": "^0.8.1",

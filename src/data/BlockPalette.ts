@@ -1,4 +1,4 @@
-export default interface BlockPalette {
+export interface BlockPalette {
 
     id: number,
     runtimeId: number,

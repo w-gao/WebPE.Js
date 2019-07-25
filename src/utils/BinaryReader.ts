@@ -1,13 +1,13 @@
 import {Buffer} from "buffer";
-import VarInt from "./VarInt";
-import ResourcePacksInfo, {PackIdVersion} from "../data/ResourcePacksInfo";
+import {VarInt} from "./VarInt";
+import {PackIdVersion, ResourcePacksInfo} from "../data";
 import Long = require("long");
-import BlockVector3 from "../math/BlockVector3";
-import Vector3 from "../math/Vector3";
-import GameRule from "../data/GameRule";
-import BlockPalette from "../data/BlockPalette";
+import {BlockVector3} from "../math";
+import {Vector3} from "../math";
+import {GameRule} from "../data";
+import {BlockPalette} from "../data";
 
-export default class BinaryReader {
+export class BinaryReader {
 
     public readonly buffer: Buffer;
     public offset: number;

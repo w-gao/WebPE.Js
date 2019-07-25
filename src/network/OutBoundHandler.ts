@@ -1,16 +1,16 @@
-import BinaryWriter, {PacketPool} from "../utils/BinaryWriter";
+import {BinaryWriter, PacketPool} from "../utils";
 import {ProtocolId} from "./Protocol";
+import {BatchPool} from "../utils";
+import {MinecraftClient} from "../MinecraftClient";
 import {util} from "node-jose";
 import base64url = util.base64url;
-import {BatchPool} from "../utils/BatchUtils";
-import MinecraftClient from "../MinecraftClient";
 
 /**
  * Anything relevant to sending data to the server
  *
  * Functionality/purpose should be implemented by subclasses
  */
-export default class OutBoundHandler {
+export class OutBoundHandler {
 
     private readonly client: MinecraftClient;
     private readonly _batchPool: BatchPool;

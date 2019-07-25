@@ -4,7 +4,7 @@ import Long = require("long");
  * This is a direct port of the VarInt implemented by Nukkit
  * @see https://github.com/EaseCation/Nukkit/blob/v14/src/main/java/cn/nukkit/utils/VarInt.java
  */
-export default class VarInt {
+export class VarInt {
 
     /**
      * @param v Signed int

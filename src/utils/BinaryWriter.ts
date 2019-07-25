@@ -1,10 +1,10 @@
 import {Buffer} from "buffer";
-import VarInt from "./VarInt";
+import {VarInt} from "./VarInt";
 import Long = require("long");
-import Pool, {PoolObject} from "./Pool";
+import {Pool, PoolObject} from "./Pool";
 
 
-export default class BinaryWriter extends PoolObject {
+export class BinaryWriter extends PoolObject {
 
     private readonly buffer: Buffer;
     private readonly arrayBuffer: ArrayBuffer;

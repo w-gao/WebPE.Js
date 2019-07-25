@@ -9,16 +9,10 @@
     "noImplicitAny": false,
     "removeComments": true,
     "preserveConstEnums": true,
-    "moduleResolution": "node",
-    "outDir": "dist",
-    "rootDir": ".",
-    "sourceMap": false,
-    "typeRoots": [
-      "./node_modules/long",
-      "./node_modules/base64-url"
-    ]
+    "moduleResolution": "node"
   },
-  "include": [
-    "src/**/*"
+  "exclude": [
+    "node_modules",
+    "./dist"
   ]
 }

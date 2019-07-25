@@ -1,6 +1,6 @@
 import Long = require("long");
 
-export default interface ResourcePacksInfo {
+export interface ResourcePacksInfo {
 
     packIdVersion: PackIdVersion,
     size: Long,

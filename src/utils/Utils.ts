@@ -1,7 +1,7 @@
 /**
  * General utilities
  */
-export default class Utils {
+export class Utils {
 
     private static readonly HEX = '0123456789ABCDEF';
 

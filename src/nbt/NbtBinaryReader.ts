@@ -1,6 +1,6 @@
-import BinaryReader from "../utils/BinaryReader";
+import {BinaryReader} from "../utils";
 
-export default class NbtBinaryReader extends BinaryReader {
+export class NbtBinaryReader extends BinaryReader {
 
 
 }

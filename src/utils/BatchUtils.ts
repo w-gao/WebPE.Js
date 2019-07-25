@@ -1,8 +1,8 @@
 import pako = require("pako");
 import {Buffer} from "buffer";
-import BinaryWriter from "./BinaryWriter";
-import BinaryReader from "./BinaryReader";
-import MinecraftClient from "../MinecraftClient";
+import {BinaryWriter} from "./BinaryWriter";
+import {BinaryReader} from "./BinaryReader";
+import {MinecraftClient} from "../MinecraftClient";
 
 export class BatchPool {
 
@@ -69,7 +69,7 @@ export class BatchPool {
 
 }
 
-export default class BatchUtils {
+export class BatchUtils {
 
     /**
      * This method takes care of decoding the incoming batch packet.

@@ -1,10 +1,10 @@
 import Long = require("long");
-import Vector3 from "../math/Vector3";
-import GameRule from "./GameRule";
-import BlockPalette from "./BlockPalette";
-import BlockVector3 from "../math/BlockVector3";
+import {Vector3} from "../math";
+import {GameRule} from "./GameRule";
+import {BlockPalette} from "./BlockPalette";
+import {BlockVector3} from "../math";
 
-export default interface StartGameInfo {
+export interface StartGameInfo {
 
     entityIdSelf: Long,
     runtimeEntityId: Long,

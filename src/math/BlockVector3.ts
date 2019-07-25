@@ -1,4 +1,4 @@
-export default class BlockVector3 {
+export class BlockVector3 {
 
     public x: number;       // int
     public y: number;       // int

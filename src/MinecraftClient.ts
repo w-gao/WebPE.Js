@@ -1,8 +1,8 @@
-import BinaryReader from "./utils/BinaryReader";
-import InboundHandler from "./network/InboundHandler";
-import OutBoundHandler from "./network/OutBoundHandler";
+import {BinaryReader} from "./utils";
+import {InboundHandler} from "./network";
+import {OutBoundHandler} from "./network";
 
-export default class MinecraftClient {
+export class MinecraftClient {
 
     private readonly _connectionString: string;
     private _websocket: WebSocket;

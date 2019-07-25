@@ -1,4 +1,4 @@
-export default class GameRule {
+export class GameRule {
 
     public name: string;
     public type: number;        // 1: boolean, 2: int, 3: float

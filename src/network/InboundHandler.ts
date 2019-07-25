@@ -1,10 +1,10 @@
-import BinaryReader from "../utils/BinaryReader";
-import Utils from "../utils/Utils";
-import BatchUtils from "../utils/BatchUtils";
+import {BinaryReader} from "../utils";
+import {Utils} from "../utils";
+import {BatchUtils} from "../utils";
 import {ProtocolId} from "./Protocol";
-import MinecraftClient from "../MinecraftClient";
-import ResourcePacksInfo from "../data/ResourcePacksInfo";
-import StartGameInfo from "../data/StartGameInfo";
+import {MinecraftClient} from "../MinecraftClient";
+import {ResourcePacksInfo} from "../data";
+import {StartGameInfo} from "../data";
 
 import nbt = require("nbt");
 
@@ -14,7 +14,7 @@ import nbt = require("nbt");
  *
  * Functionality/purpose should be implemented by subclasses
  */
-export default class InboundHandler {
+export class InboundHandler {
 
     private readonly client: MinecraftClient;
 
