@@ -15,6 +15,13 @@ through a proxy or a server side plugin.
 
 ### Development
 
+##### TODOs
+
+- [ ] Decode FullChunkDataPacket
+- [ ] NBT library
+- [ ] Handshake sequence; ping server etc
+- [ ] Use workers for websocket and chunk loading
+
 
 ##### Dependencies
 

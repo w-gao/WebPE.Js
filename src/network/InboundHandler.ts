@@ -6,6 +6,8 @@ import MinecraftClient from "../MinecraftClient";
 import ResourcePacksInfo from "../data/ResourcePacksInfo";
 import StartGameInfo from "../data/StartGameInfo";
 
+import nbt = require("nbt");
+
 
 /**
  * Takes care of decoding all incoming messages including batch packets.
@@ -49,8 +51,7 @@ export default class InboundHandler {
                 break;
 
             case ProtocolId.FullChunkData:
-
-
+                this.handleFullChunkData(pk);
                 break;
         }
 
@@ -252,5 +253,65 @@ export default class InboundHandler {
         //
     }
 
+    private count = 0;
+
+    public handleFullChunkData(pk: BinaryReader) {
+
+        let cx: number = pk.unpackVarInt();
+        let cz: number = pk.unpackVarInt();
+        let length: number = pk.unpackUnsignedVarInt().toInt();     // we could use unpackByteArray
+
+        console.log('Receiving FullChunk<' + cx + ',' + cz + '>');
+
+        let count: number = pk.unpackByte();
+        console.log(`count=${count}`);
+
+        if (count < 1) {
+            console.log('Empty Chunks');
+        }
+
+        for (let s = 0; s < count; s++) {
+
+            let version = pk.unpackByte();
+            console.log(`version=${version}`);
+
+            if (version != 0) {
+
+                // 1 and 8 are the newer chunk versions. Ideally we would be using them
+                // because they support more blocks. However, neither Nukkit nor most
+                // web based voxel engines support blocks beyond the 255 limit.
+
+                console.log('Unsupported chunk version');
+
+            } else {
+
+                let blockIds: number[] = Array.from(pk.unpack(4096));
+                let data: number[] = Array.from(pk.unpack(2048));
+
+                // console.log(blockIds);
+                // console.log(data);
+
+                for (let x = 0; x < 16; x++) {
+                    for (let z = 0; z < 16; z++) {
+                        for (let y = 0; y < 16; y++) {
+
+                            let idx: number = (x << 8) + (z << 4) + y;
+                            let id: number = blockIds[idx];
+                            let meta: number = data[idx];
+
+                            // lol uncomment to crash ur client
+                            // if (id != 0) console.log('<' + x + ',' + y + ',' + z + '> has block ' + id + ':' + meta);
+                        }
+                    }
+                }
+
+
+
+            }
+        }
+
+        this.count++;
+        if (this.count == 3) this.client.disconnect();
+    }
 
 }
