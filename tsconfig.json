@@ -7,7 +7,6 @@
       "dom"
     ],
     "noImplicitAny": false,
-    "removeComments": true,
     "preserveConstEnums": true,
     "moduleResolution": "node"
   },

@@ -1,6 +1,7 @@
 import {BinaryReader} from "./utils";
 import {InboundHandler} from "./network";
 import {OutBoundHandler} from "./network";
+import {World} from "./world";
 
 export class MinecraftClient {
 
@@ -10,8 +11,14 @@ export class MinecraftClient {
     private _inboundHandler: InboundHandler;
     private _outboundHandler: OutBoundHandler;
 
+    // Callback events
+    public onPlayerSpawn: () => void;
+
+
     // private _connectedToServer: boolean = false;        // Minecraft server; not WebSocket server
     private _hasSpawned: boolean = false;
+
+    private _world: World = null;
 
 
     constructor(host?: string, port?: number) {
@@ -105,6 +112,15 @@ export class MinecraftClient {
 
     set hasSpawned(value: boolean) {
         this._hasSpawned = value;
+        if (this.onPlayerSpawn) this.onPlayerSpawn();
+    }
+
+    get world(): World {
+        return this._world;
+    }
+
+    set world(value: World) {
+        this._world = value;
     }
 
 }

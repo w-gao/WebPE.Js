@@ -7,6 +7,8 @@ import {ResourcePacksInfo} from "../data";
 import {StartGameInfo} from "../data";
 
 import nbt = require("nbt");
+import {Chunk, ChunkSection} from "../world";
+import {World, WorldInfo} from "../world/World";
 
 
 /**
@@ -24,11 +26,18 @@ export class InboundHandler {
     }
 
 
+    // completely temporary
+    private static logPacket(pid: number) {
+
+        return pid != 0xfe && pid != ProtocolId.UpdateBlock && pid != ProtocolId.SetEntityData;
+    }
+
     public handlePacket(pk: BinaryReader) {
 
         const pid: number = pk.unpackByte();
         const pidHex = Utils.toHexString(pid);
-        pid != 0xfe && console.log(`Received packet ID: ${pidHex}, size=${pk.buffer.length}`);
+
+        InboundHandler.logPacket(pid) && console.log(`Received packet ID: ${pidHex}, size=${pk.buffer.length}`);
         switch (pid) {
 
             case 0xfe:      // batch
@@ -56,8 +65,8 @@ export class InboundHandler {
         }
 
 
-        if (pk.unreadBytes() != 0) {
-            console.warn('[' + pidHex + '] Still has ' + pk.unreadBytes() + ' bytes to read!')
+        if (pk.unreadBytes() != 0 && InboundHandler.logPacket(pid)) {
+            console.warn('[' + pidHex + '] Still has ' + pk.unreadBytes() + ' bytes to read!');
 
             let buff = pk.unpackAll();
             if (buff.length < 100) {
@@ -183,7 +192,7 @@ export class InboundHandler {
             case 3:
             case 4:
                 message = pk.unpackString();
-                let count = pk.unpackVarInt();
+                let count = pk.unpackUnsignedVarInt().toInt();
                 for (let i = 0; i < count; i++) {
                     parameters.push(pk.unpackString());
                 }
@@ -250,10 +259,23 @@ export class InboundHandler {
         console.log('START GAME');
         console.log(startGameInfo);
 
-        //
+        let worldInfo: WorldInfo = {
+            spawn: startGameInfo.spawn,
+            seed: startGameInfo.seed,
+            rainLevel: startGameInfo.rainLevel,
+            lightningLevel: startGameInfo.lightningLevel,
+            gameRules: startGameInfo.gameRules,
+            bonusChest: startGameInfo.bonusChest,
+            serverChunkTickRange: startGameInfo.serverChunkTickRange,
+            levelId: startGameInfo.levelId,
+            worldName: startGameInfo.worldName,
+            premiumWorldTemplateId: startGameInfo.premiumWorldTemplateId,
+            blockPalettes: startGameInfo.blockPalettes
+        };
+
+        this.client.world = new World(worldInfo);
     }
 
-    private count = 0;
 
     public handleFullChunkData(pk: BinaryReader) {
 
@@ -261,13 +283,22 @@ export class InboundHandler {
         let cz: number = pk.unpackVarInt();
         let length: number = pk.unpackUnsignedVarInt().toInt();     // we could use unpackByteArray
 
+        // if (cx <= 7 || cx >= 9) return;
+        // if (cz <= 7 || cz >= 9) return;
+
         console.log('Receiving FullChunk<' + cx + ',' + cz + '>');
 
         let count: number = pk.unpackByte();
         console.log(`count=${count}`);
 
+        let chunk: Chunk = new Chunk(cx, cz);
+
         if (count < 1) {
             console.log('Empty Chunks');
+
+            // if (this.client.world.getChunk(cx, cz) == undefined)
+            //     this.client.world.setChunk(cx, cz, chunk);
+            return;     // !! Might have other info to read??
         }
 
         for (let s = 0; s < count; s++) {
@@ -288,30 +319,16 @@ export class InboundHandler {
                 let blockIds: number[] = Array.from(pk.unpack(4096));
                 let data: number[] = Array.from(pk.unpack(2048));
 
-                // console.log(blockIds);
-                // console.log(data);
-
-                for (let x = 0; x < 16; x++) {
-                    for (let z = 0; z < 16; z++) {
-                        for (let y = 0; y < 16; y++) {
-
-                            let idx: number = (x << 8) + (z << 4) + y;
-                            let id: number = blockIds[idx];
-                            let meta: number = data[idx];
-
-                            // lol uncomment to crash ur client
-                            // if (id != 0) console.log('<' + x + ',' + y + ',' + z + '> has block ' + id + ':' + meta);
-                        }
-                    }
-                }
-
-
-
+                let section: ChunkSection = new ChunkSection();
+                section.blockIds = blockIds;
+                section.blockData = data;
+                chunk.setChunkSection(s, section);
             }
         }
 
-        this.count++;
-        if (this.count == 3) this.client.disconnect();
+        this.client.world.setChunk(cx, cz, chunk);
+
+
     }
 
 }
