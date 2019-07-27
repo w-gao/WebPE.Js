@@ -1,10 +1,12 @@
+import {int} from "../types";
+
 export class BlockVector3 {
 
-    public x: number;       // int
-    public y: number;       // int
-    public z: number;       // int
+    public x: int;
+    public y: int;
+    public z: int;
 
-    constructor(x: number, y: number, z: number) {
+    constructor(x: int, y: int, z: int) {
 
         this.x = x;
         this.y = y;

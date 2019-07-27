@@ -16,7 +16,7 @@ export class Pool<T extends PoolObject> {
     private offset: number;
     private numActive: number;
 
-    constructor(constructFunc, size: number) {
+    constructor(constructFunc: () => T, size: number) {
 
         this.size = 0;
         this.originalSize = size;
@@ -60,7 +60,7 @@ export class Pool<T extends PoolObject> {
         return this.retrieve();
     }
 
-    public recycle(obj) {
+    public recycle(obj: T) {
         obj.active = false;
         this.numActive--;
     }

@@ -1,7 +1,9 @@
+import {int, short} from "../types";
+
 export interface BlockPalette {
 
-    id: number,
-    runtimeId: number,
+    id: int,
+    runtimeId: int,
     name: string,
-    data: number
+    data: short
 }

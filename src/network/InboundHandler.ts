@@ -8,7 +8,7 @@ import {StartGameInfo} from "../data";
 
 import nbt = require("nbt");
 import {Chunk, ChunkSection} from "../world";
-import {World, WorldInfo} from "../world/World";
+import {World, WorldInfo} from "../world";
 
 
 /**
@@ -27,14 +27,14 @@ export class InboundHandler {
 
 
     // completely temporary
-    private static logPacket(pid: number) {
+    private static logPacket(pid: number): boolean {
 
         return pid != 0xfe && pid != ProtocolId.UpdateBlock && pid != ProtocolId.SetEntityData;
     }
 
-    public handlePacket(pk: BinaryReader) {
+    public handlePacket(pk: BinaryReader): void {
 
-        const pid: number = pk.unpackByte();
+        const pid = pk.unpackByte();
         const pidHex = Utils.toHexString(pid);
 
         InboundHandler.logPacket(pid) && console.log(`Received packet ID: ${pidHex}, size=${pk.buffer.length}`);
@@ -77,7 +77,7 @@ export class InboundHandler {
         }
     }
 
-    public handlePlayStatus(pk: BinaryReader) {
+    public handlePlayStatus(pk: BinaryReader): void {
 
         /**
          * Status code constants
@@ -108,7 +108,7 @@ export class InboundHandler {
         }
     }
 
-    public handleResourcePacksInfo(pk: BinaryReader) {
+    public handleResourcePacksInfo(pk: BinaryReader): void {
 
         let mustAccept = pk.unpackBoolean();
         let hasScripts = pk.unpackBoolean();
@@ -130,7 +130,7 @@ export class InboundHandler {
             this.client.outboundHandler.sendResourcePackClientResponse(3);
         } else {
 
-            let ids: string[] = [];
+            let ids = [];
 
             resourceInfos.forEach(info => {
                 console.log(`Received pack ${info.packIdVersion.id} - ${info.packIdVersion.version}`);
@@ -141,7 +141,7 @@ export class InboundHandler {
         }
     }
 
-    public handleResourcePackStack(pk: BinaryReader) {
+    public handleResourcePackStack(pk: BinaryReader): void {
 
         let mustAccept = pk.unpackBoolean();
         let behaviorVersions = pk.unpackResourcePackVersion();
@@ -154,7 +154,7 @@ export class InboundHandler {
     }
 
 
-    public handleText(pk: BinaryReader) {
+    public handleText(pk: BinaryReader): void {
 
         /**
          * Text type constants
@@ -206,7 +206,7 @@ export class InboundHandler {
         console.log(parameters.join());
     }
 
-    public handleStartGame(pk: BinaryReader) {
+    public handleStartGame(pk: BinaryReader): void {
 
         let startGameInfo: StartGameInfo = {
 
@@ -277,18 +277,18 @@ export class InboundHandler {
     }
 
 
-    public handleFullChunkData(pk: BinaryReader) {
+    public handleFullChunkData(pk: BinaryReader): void {
 
-        let cx: number = pk.unpackVarInt();
-        let cz: number = pk.unpackVarInt();
-        let length: number = pk.unpackUnsignedVarInt().toInt();     // we could use unpackByteArray
+        let cx = pk.unpackVarInt();
+        let cz = pk.unpackVarInt();
+        let length = pk.unpackUnsignedVarInt().toInt();     // we could use unpackByteArray
 
         // if (cx <= 7 || cx >= 9) return;
         // if (cz <= 7 || cz >= 9) return;
 
         console.log('Receiving FullChunk<' + cx + ',' + cz + '>');
 
-        let count: number = pk.unpackByte();
+        let count = pk.unpackByte();
         console.log(`count=${count}`);
 
         let chunk: Chunk = new Chunk(cx, cz);
@@ -316,10 +316,10 @@ export class InboundHandler {
 
             } else {
 
-                let blockIds: number[] = Array.from(pk.unpack(4096));
-                let data: number[] = Array.from(pk.unpack(2048));
+                let blockIds = Array.from(pk.unpack(4096));
+                let data = Array.from(pk.unpack(2048));
 
-                let section: ChunkSection = new ChunkSection();
+                let section = new ChunkSection();
                 section.blockIds = blockIds;
                 section.blockData = data;
                 chunk.setChunkSection(s, section);

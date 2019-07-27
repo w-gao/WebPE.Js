@@ -1,9 +1,9 @@
-import Long = require("long");
+import {long} from "../types";
 
 export interface ResourcePacksInfo {
 
     packIdVersion: PackIdVersion,
-    size: Long,
+    size: long,
     hasScripts: boolean;
 }
 

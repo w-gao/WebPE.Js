@@ -6,6 +6,7 @@ import {BlockVector3} from "../math";
 import {Vector3} from "../math";
 import {GameRule} from "../data";
 import {BlockPalette} from "../data";
+import {byte, double, float, int, long, short} from "../types";
 
 export class BinaryReader {
 
@@ -20,26 +21,6 @@ export class BinaryReader {
     public unreadBytes(): number {
         return Math.max(0, this.buffer.length - this.offset);
     }
-
-    /**
-     * Credits to Jonas Konrad / yawkat and CubeCraft, unfortunately the wiki is no longer available.
-     *
-     * | Type         | Description
-     * ------------------------------
-     * | byte        | 1 byte
-     * | short       | 2 bytes
-     * | int         | 4 bytes
-     * | long        | 8 bytes
-     * | uuid        | 16 bytes
-     * | float       | 4 bytes
-     * | NBT         | NBT data in PE is always little-endian. This endianness includes short, int, long, float, double tags and the length headers for arrays, strings and lists.
-     * | stack       | First short is the item ID. If this is not 0, then follows the item count ubyte. If this is also not 0, then follows the item data short and a little-endian short denoting the length of the following NBT data, or 0 for no NBT. Then follows an NBT tag described above of that length.
-     * | vector      | 3 floats (x, y, z)
-     * | vector:int  | 3 ints (x, y, z)
-     * | block pos   | 2 ints (x, z) then an unsigned byte (y)
-     * | string      | short and then that many bytes (presumably UTF-8 but maybe just Latin-1)
-     * | string:int:le | LE-int and then that many bytes (presumably UTF-8 but maybe just Latin-1)
-     */
 
     public unpack(len?: number): Uint8Array {
 
@@ -65,7 +46,7 @@ export class BinaryReader {
         return this.unpack();
     }
 
-    public unpackByte(): number {
+    public unpackByte(): byte {
         const i = this.offset;
         this.offset++;
         return this.buffer[i];
@@ -82,71 +63,71 @@ export class BinaryReader {
         return this.buffer[i] != 0;
     }
 
-    public unpackShort(): number {
+    public unpackShort(): short {
         const i = this.offset;
         this.offset += 2;
         return this.buffer.readUInt16BE(i);
     }
 
-    public unpackLShort(): number {
+    public unpackLShort(): short {
         const i = this.offset;
         this.offset += 2;
         return this.buffer.readUInt16LE(i);
     }
 
-    public unpackSignedShort(): number {
+    public unpackSignedShort(): short {
         const i = this.offset;
         this.offset += 2;
         return this.buffer.readInt16BE(i);
     }
 
-    public unpackSignedLShort(): number {
+    public unpackSignedLShort(): short {
         const i = this.offset;
         this.offset += 2;
         return this.buffer.readInt16LE(i);
     }
 
-    public unpackInt(): number {
+    public unpackInt(): int {
         const i = this.offset;
         this.offset += 4;
         return this.buffer.readInt32BE(i);
     }
 
-    public unpackLInt(): number {
+    public unpackLInt(): int {
         const i = this.offset;
         this.offset += 4;
         return this.buffer.readInt32LE(i);
     }
 
-    public unpackFloat(): number {
+    public unpackFloat(): float {
         const i = this.offset;
         this.offset += 4;
         return this.buffer.readFloatBE(i);
     }
 
-    public unpackLFloat(): number {
+    public unpackLFloat(): float {
         const i = this.offset;
         this.offset += 4;
         return this.buffer.readFloatLE(i);
     }
 
-    public unpackDouble(): number {
+    public unpackDouble(): double {
         const i = this.offset;
         this.offset += 8;
         return this.buffer.readDoubleBE(i);
     }
 
-    public unpackLDouble(): number {
+    public unpackLDouble(): double {
         const i = this.offset;
         this.offset += 8;
         return this.buffer.readDoubleLE(i);
     }
 
-    public unpackLong(): Long {
+    public unpackLong(): long {
         return Long.fromBytesBE(Array.from(this.unpack(8)));
     }
 
-    public unpackLLong(): Long {
+    public unpackLLong(): long {
         return Long.fromBytesLE(Array.from(this.unpack(8)));
     }
 
@@ -154,11 +135,14 @@ export class BinaryReader {
         return this.unpack(this.unpackUnsignedVarInt().toInt()).toString();
     }
 
-    public unpackUnsignedVarInt(): Long {
+    /**
+     * @return      Returns a Long object for further manipulation
+     */
+    public unpackUnsignedVarInt(): long {
 
-        let numRead: number = 0;
-        let result: Long = new Long(0, 0, true);
-        let read: number;       // byte
+        let numRead = 0;
+        let result = new Long(0, 0, true);
+        let read;
         do {
             read = this.unpackByte();
             result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
@@ -172,15 +156,29 @@ export class BinaryReader {
         return result;
     }
 
-    public unpackVarInt(): number {
-        return VarInt.decodeZigZag32(this.unpackUnsignedVarInt());
+    public unpackVarInt(): int {
+
+        let numRead = 0;
+        let result = new Long(0);
+        let read;
+        do {
+            read = this.unpackByte();
+            result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
+
+            numRead++;
+            if (numRead > 5) {
+                throw new Error("VarInt is too big");
+            }
+        } while ((read & 0b10000000) != 0);
+
+        return VarInt.decodeZigZag32(result);
     }
 
-    public unpackUnsignedVarLong(): Long {
+    public unpackUnsignedVarLong(): long {
 
-        let numRead: number = 0;
-        let result: Long = new Long(0, 0, true);
-        let read: number;       // byte
+        let numRead = 0;
+        let result = new Long(0, 0, true);
+        let read;
         do {
             read = this.unpackByte();
             result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
@@ -194,8 +192,22 @@ export class BinaryReader {
         return result;
     }
 
-    public unpackVarLong(): Long {
-        return VarInt.decodeZigZag64(this.unpackUnsignedVarLong());
+    public unpackVarLong(): long {
+
+        let numRead = 0;
+        let result = new Long(0, 0, false);
+        let read;
+        do {
+            read = this.unpackByte();
+            result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
+
+            numRead++;
+            if (numRead > 10) {
+                throw new Error("VarLong is too big");
+            }
+        } while ((read & 0b10000000) != 0);
+
+        return VarInt.decodeZigZag64(result);
     }
 
 
@@ -204,9 +216,9 @@ export class BinaryReader {
 
     public unpackResourcePacksInfo(): ResourcePacksInfo[] {
 
-        let count: number = this.unpackLShort(); // LE
+        let count = this.unpackLShort(); // LE
 
-        const packInfos: ResourcePacksInfo[] = [];
+        const packInfos = [];
         for (let i = 0; i < count; i++) {
             const id = this.unpackString();
             const version = this.unpackString();
@@ -233,9 +245,9 @@ export class BinaryReader {
 
     public unpackResourcePackVersion(): PackIdVersion[] {
 
-        let count: number = this.unpackUnsignedVarInt().toInt();
+        let count = this.unpackUnsignedVarInt().toInt();
 
-        const infos: PackIdVersion[] = [];
+        const infos = [];
 
         for (let i = 0; i < count; i++) {
             infos.push({
@@ -260,13 +272,13 @@ export class BinaryReader {
 
     public unpackGameRules(): GameRule[] {
 
-        let count: number = this.unpackUnsignedVarInt().toInt();
+        let count = this.unpackUnsignedVarInt().toInt();
 
-        const gameRules: GameRule[] = [];
+        const gameRules = [];
 
         for (let i = 0; i < count; i++) {
-            let name: string = this.unpackString();
-            let type: number = this.unpackUnsignedVarInt().toInt();
+            let name = this.unpackString();
+            let type = this.unpackUnsignedVarInt().toInt();
 
             switch (type) {
                 case 1: {
@@ -289,9 +301,9 @@ export class BinaryReader {
 
     public unpackBlockPalettes(): BlockPalette[] {
 
-        let count: number = this.unpackUnsignedVarInt().toInt();
+        let count = this.unpackUnsignedVarInt().toInt();
 
-        const blockPalettes: BlockPalette[] = [];
+        const blockPalettes = [];
 
         for (let i = 0; i < count; i++) {
             blockPalettes.push({

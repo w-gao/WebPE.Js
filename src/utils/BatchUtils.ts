@@ -15,11 +15,9 @@ export class BatchPool {
     constructor(client: MinecraftClient) {
 
         this.client = client;
-
-        (window as any).batch = this;
     }
 
-    public processBatch() {
+    public processBatch(): void {
 
         if (this.processing) {
             return;
@@ -57,7 +55,7 @@ export class BatchPool {
     }
 
 
-    public pushPacket(pk: BinaryWriter, direct: boolean = false) {
+    public pushPacket(pk: BinaryWriter, direct: boolean = false): void {
 
         if (direct) {
             this.client.sendPacket(pk.getBuffer());

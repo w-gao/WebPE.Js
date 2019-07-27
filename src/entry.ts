@@ -10,7 +10,7 @@ import {OutBoundHandler} from "./network";
 
 class DefaultInboundHandler extends InboundHandler {
 
-    constructor(client) {
+    constructor(client: MinecraftClient) {
         super(client);
     }
 
@@ -19,7 +19,7 @@ class DefaultInboundHandler extends InboundHandler {
 
 class DefaultOutboundHandler extends OutBoundHandler {
 
-    constructor(client) {
+    constructor(client: MinecraftClient) {
         super(client);
     }
 

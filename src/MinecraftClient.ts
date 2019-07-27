@@ -79,14 +79,14 @@ export class MinecraftClient {
      *
      * @param pk    packet should be recycled when necessary after calling sendPacket()
      */
-    public sendPacket(pk: string | ArrayBufferLike | Blob | ArrayBufferView) {
+    public sendPacket(pk: string | ArrayBufferLike | Blob | ArrayBufferView): void {
 
         // pk shouldn't be string; however, we support it ;-)
 
         this._websocket.send(pk);
     }
 
-    public disconnect(sendNotification: boolean = true) {
+    public disconnect(sendNotification: boolean = true): void {
 
         this._websocket.close(1000, 'client disconnect');
     }

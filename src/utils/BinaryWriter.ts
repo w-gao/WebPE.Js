@@ -2,6 +2,7 @@ import {Buffer} from "buffer";
 import {VarInt} from "./VarInt";
 import Long = require("long");
 import {Pool, PoolObject} from "./Pool";
+import {byte, double, float, int, long, short} from "../types";
 
 
 export class BinaryWriter extends PoolObject {
@@ -30,18 +31,18 @@ export class BinaryWriter extends PoolObject {
         return new Uint8Array(this.arrayBuffer, 0, this.offset);
     }
 
-    public pack(value: ArrayLike<number>): void {
+    public pack(value: ArrayLike<byte>): void {
 
         this.buffer.set(value, this.offset);
         this.offset += value.length;
     }
 
-    public packByte(value): void {
+    public packByte(value: byte): void {
         this.buffer[this.offset] = value & 255;
         this.offset++;
     }
 
-    public packByteArray(value: number[]): void {
+    public packByteArray(value: byte[]): void {
 
         this.packUnsignedVarInt(value.length);
         this.pack(value);
@@ -51,64 +52,64 @@ export class BinaryWriter extends PoolObject {
         this.packByte(value ? 0x01 : 0x00);
     }
 
-    public packShort(value: number): void {
+    public packShort(value: short): void {
         this.buffer.writeUInt16BE(value, this.offset);
         this.offset += 2;
     }
 
-    public packLShort(value: number): void {
+    public packLShort(value: short): void {
         this.buffer.writeUInt16LE(value, this.offset);
         this.offset += 2;
     }
 
-    public packSignedShort(value: number): void {
+    public packSignedShort(value: short): void {
         this.buffer.writeInt16BE(value, this.offset);
         this.offset += 2;
     }
 
-    public packSignedLShort(value: number): void {
+    public packSignedLShort(value: short): void {
         this.buffer.writeInt16LE(value, this.offset);
         this.offset += 2;
     }
 
-    public packInt(value: number): void {
+    public packInt(value: int): void {
         this.buffer.writeUInt32BE(value, this.offset);
         this.offset += 4;
     }
 
-    public packLInt(value: number): void {
+    public packLInt(value: int): void {
         this.buffer.writeInt32LE(value, this.offset);
         this.offset += 4;
     }
 
-    public packFloat(value: number): void {
+    public packFloat(value: float): void {
 
         this.buffer.writeFloatBE(value, this.offset);
         this.offset += 4;
     }
 
-    public packLFloat(value: number): void {
+    public packLFloat(value: float): void {
 
         this.buffer.writeFloatLE(value, this.offset);
         this.offset += 4;
     }
 
-    public packDouble(value: number): void {
+    public packDouble(value: double): void {
         this.buffer.writeDoubleBE(value, this.offset);
         this.offset += 8;
     }
 
-    public packLDouble(value: number): void {
+    public packLDouble(value: double): void {
         this.buffer.writeDoubleLE(value, this.offset);
         this.offset += 8;
     }
 
-    public packLong(value: Long): void {
+    public packLong(value: long): void {
 
         this.pack(value.toBytesBE());
     }
 
-    public packLLong(value: Long): void {
+    public packLLong(value: long): void {
 
         this.pack(value.toBytesLE());
     }
@@ -121,39 +122,37 @@ export class BinaryWriter extends PoolObject {
 
     public packLIntString(value: string): void {
 
-        // I think this is only used in LoginPacket?
-        // Described by yawkat as string:int:le
-        /** @see ./BinaryReader */
+        // Fixed size string; used in LoginPacket
 
         this.packLInt(value.length);
         this.buffer.write(value, this.offset);
         this.offset += value.length;
     }
 
-    public packUnsignedVarInt(value: number | Long): void {
+    public packUnsignedVarInt(value: int | long): void {
 
         if (typeof value == "number") value = new Long(value);
 
         do {
-            let temp = (value.and(0b01111111));
+            let temp = value.and(0b01111111);
             value = value.shiftRightUnsigned(7);
             if (!value.equals(0)) {
                 temp = temp.or(0b10000000);
             }
-            this.packByte(temp);
+            this.packByte(temp.toInt());
         } while (!value.equals(0));
     }
 
-    public packVarInt(value: number): void {
+    public packVarInt(value: int): void {
         this.packUnsignedVarInt(VarInt.encodeZigZag32(value));
     }
 
-    public packUnsignedVarLong(value: Long): void {
+    public packUnsignedVarLong(value: long): void {
 
         this.packUnsignedVarInt(value);
     }
 
-    public packVarLong(value: Long): void {
+    public packVarLong(value: long): void {
         this.packUnsignedVarLong(VarInt.encodeZigZag64(value));
     }
 }

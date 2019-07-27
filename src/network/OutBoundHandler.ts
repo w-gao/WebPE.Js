@@ -4,6 +4,7 @@ import {BatchPool} from "../utils";
 import {MinecraftClient} from "../MinecraftClient";
 import {util} from "node-jose";
 import base64url = util.base64url;
+import {byte} from "../types";
 
 /**
  * Anything relevant to sending data to the server
@@ -22,7 +23,7 @@ export class OutBoundHandler {
     }
 
 
-    public sendLogin() {
+    public sendLogin(): void {
 
         // I won't implement encryption for now because Nukkit doesn't verify the signature, so we can
         // technically fake the token. However, node-jose is still included for anyone who wants to
@@ -83,7 +84,7 @@ export class OutBoundHandler {
         this.sendPacket(packet);
     }
 
-    public sendResourcePackClientResponse(status: number, ids?: string[]) {
+    public sendResourcePackClientResponse(status: byte, ids?: string[]): void {
 
         /**
          * Status code constants
@@ -108,7 +109,7 @@ export class OutBoundHandler {
     /**
      * Helper function
      */
-    private sendPacket(pk: BinaryWriter): void {
+    protected sendPacket(pk: BinaryWriter): void {
 
         this._batchPool.pushPacket(pk);
         this._batchPool.processBatch();     // todo: when necessary, move this to an update function so we can actually batch packets
