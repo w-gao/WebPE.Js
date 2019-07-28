@@ -4,7 +4,9 @@ import {BatchPool} from "../utils";
 import {MinecraftClient} from "../MinecraftClient";
 import {util} from "node-jose";
 import base64url = util.base64url;
-import {byte} from "../types";
+import {byte, int} from "../types";
+import {PlayerLocation} from "../math";
+import Long = require("long");
 
 /**
  * Anything relevant to sending data to the server
@@ -105,6 +107,45 @@ export class OutBoundHandler {
         }
         this.sendPacket(packet);
     }
+
+    public sendMovePlayer(loc: PlayerLocation, mode: byte = 0, onGround: boolean = true) {
+
+        /**
+         * Mode constants
+         * 0        Normal
+         * 1        Reset
+         * 2        Teleport
+         * 3        Rotation
+         */
+
+        const packet = PacketPool.getPacket();
+        packet.packUnsignedVarInt(ProtocolId.MovePlayer);
+        packet.packUnsignedVarLong(this.client.startGameInfo.runtimeEntityId);
+        packet.packFloat(loc.x);
+        packet.packFloat(loc.y);
+        packet.packFloat(loc.z);
+        packet.packFloat(loc.pitch);
+        packet.packFloat(loc.yaw);
+        packet.packFloat(loc.headYaw);
+        packet.packByte(mode);
+        packet.packBoolean(onGround);
+        packet.packUnsignedVarLong(new Long(0));      // otherRuntimeEntityId
+
+        this.sendPacket(packet);
+    }
+
+
+    public sendRequestChunkRadius(radius: int): void {
+
+        const packet = PacketPool.getPacket();
+        packet.packUnsignedVarInt(ProtocolId.RequestChunkRadius);
+        packet.packVarInt(radius);
+
+        this.sendPacket(packet);
+    }
+
+
+
 
     /**
      * Helper function

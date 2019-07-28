@@ -4,6 +4,8 @@ import {OutBoundHandler} from "./network";
 import {World} from "./world";
 import {EventType} from "./event";
 import EventEmitter = require("events");
+import {PlayerLocation} from "./math";
+import {StartGameInfo} from "./data";
 
 export class MinecraftClient {
 
@@ -19,6 +21,8 @@ export class MinecraftClient {
     private _isConnected: boolean = false;
     private _hasSpawned: boolean = false;
 
+    private _startGameInfo: StartGameInfo;
+    private _currentLocation: PlayerLocation;
     private _world: World = null;
 
 
@@ -133,6 +137,22 @@ export class MinecraftClient {
     set hasSpawned(value: boolean) {
         this._hasSpawned = value;
         if (value) this.eventEmitter.emit(EventType.PlayerSpawn);
+    }
+
+    get startGameInfo(): StartGameInfo {
+        return this._startGameInfo;
+    }
+
+    set startGameInfo(value: StartGameInfo) {
+        this._startGameInfo = value;
+    }
+
+    get currentLocation(): PlayerLocation {
+        return this._currentLocation;
+    }
+
+    set currentLocation(value: PlayerLocation) {
+        this._currentLocation = value;
     }
 
     get world(): World {

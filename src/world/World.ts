@@ -20,8 +20,7 @@ export interface WorldInfo {
 export class World {
 
     private readonly chunks: Chunk[];
-
-    private worldInfo: WorldInfo;
+    public worldInfo: WorldInfo;
 
     constructor(info: WorldInfo) {
         this.chunks = [];

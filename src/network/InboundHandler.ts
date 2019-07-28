@@ -9,6 +9,7 @@ import {StartGameInfo} from "../data";
 import nbt = require("nbt");
 import {Chunk, ChunkSection} from "../world";
 import {World, WorldInfo} from "../world";
+import {PlayerLocation} from "../math";
 
 
 /**
@@ -29,22 +30,27 @@ export class InboundHandler {
     // completely temporary
     private static logPacket(pid: number): boolean {
 
-        return pid != 0xfe && pid != ProtocolId.UpdateBlock && pid != ProtocolId.SetEntityData;
+        return pid != ProtocolId.UpdateBlock && pid != ProtocolId.SetEntityData && pid != ProtocolId.AddEntity && pid != ProtocolId.MoveEntityDelta;
     }
 
     public handlePacket(pk: BinaryReader): void {
 
         const pid = pk.unpackByte();
+
+        if (pid == 0xfe) {        // batch
+            BatchUtils.handleBatchPacket(pk).forEach(pk => this.handlePacket(pk));
+            return;
+        }
+
         const pidHex = Utils.toHexString(pid);
 
         InboundHandler.logPacket(pid) && console.log(`Received packet ID: ${pidHex}, size=${pk.buffer.length}`);
         switch (pid) {
-
-            case 0xfe:      // batch
-                BatchUtils.handleBatchPacket(pk).forEach(pk => this.handlePacket(pk));
-                break;
             case ProtocolId.PlayStatus:
                 this.handlePlayStatus(pk);
+                break;
+            case ProtocolId.Disconnect:
+                this.handleDisconnect(pk);
                 break;
             case ProtocolId.ResourcePacksInfo:
                 this.handleResourcePacksInfo(pk);
@@ -58,9 +64,17 @@ export class InboundHandler {
             case ProtocolId.StartGame:
                 this.handleStartGame(pk);
                 break;
-
+            case ProtocolId.AddPlayer:
+                // this.handleAddPlayer(pk);
+                break;
+            case ProtocolId.MovePlayer:
+                // this.handleMovePlayer(pk);
+                break;
             case ProtocolId.FullChunkData:
                 this.handleFullChunkData(pk);
+                break;
+            case ProtocolId.ChunkRadiusUpdate:
+                this.handleChunkRadiusUpdate(pk);
                 break;
         }
 
@@ -100,12 +114,18 @@ export class InboundHandler {
             case 3:
                 this.client.hasSpawned = true;
                 console.log('PLAYER_SPAWN');
+                this.client.outboundHandler.sendMovePlayer(this.client.currentLocation);
                 break;
             default:
                 // 4, 5, and 6 are known, but shouldn't be sent
                 console.warn('Unknown Player Status sent from server.');
                 break;
         }
+    }
+
+    public handleDisconnect(pk: BinaryReader): void {
+
+        this.client.disconnect(true);
     }
 
     public handleResourcePacksInfo(pk: BinaryReader): void {
@@ -258,6 +278,15 @@ export class InboundHandler {
 
         console.log('START GAME');
         console.log(startGameInfo);
+        this.client.startGameInfo = startGameInfo;
+
+        this.client.currentLocation = PlayerLocation.from(
+            startGameInfo.position,
+            startGameInfo.yaw,
+            startGameInfo.pitch,
+            startGameInfo.yaw
+        );
+
 
         let worldInfo: WorldInfo = {
             spawn: startGameInfo.spawn,
@@ -274,6 +303,8 @@ export class InboundHandler {
         };
 
         this.client.world = new World(worldInfo);
+
+        this.client.outboundHandler.sendRequestChunkRadius(5);
     }
 
 
@@ -329,6 +360,14 @@ export class InboundHandler {
         this.client.world.setChunk(cx, cz, chunk);
 
 
+    }
+
+    public handleChunkRadiusUpdate(pk: BinaryReader): void {
+
+        let radius = pk.unpackVarInt();
+
+        console.log('ChunkRadiusUpdate');
+        console.log(`radius=${radius}`);
     }
 
 }

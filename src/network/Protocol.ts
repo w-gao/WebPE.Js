@@ -8,28 +8,28 @@ export const ProtocolId = {
     PlayStatus: 0x02,
     ServerToClientHandshake: 0x03,
     ClientToServerHandshake: 0x04,
-    Disconnect: 0x05,
+    Disconnect: 0x05,       // todo
     ResourcePacksInfo: 0x06,
     ResourcePackStack: 0x07,
     ResourcePackClientResponse: 0x08,
     Text: 0x09,
     SetTime: 0x0a,                          // 10
     StartGame: 0x0b,                        // 11
-    AddPlayer: 0x0c,                        // 12
+    AddPlayer: 0x0c,                        // 12       // todo
     AddEntity: 0x0d,                        // 13
     RemoveEntity: 0x0e,                     // 14
     AddItemEntity: 0x0f,                    // 15
 
     TakeItemEntity: 0x11,                   // 17
     MoveEntity: 0x12,                       // 18
-    MovePlayer: 0x13,                       // 19
+    MovePlayer: 0x13,                       // 19       // todo
     RiderJump: 0x14,                        // 20
-    UpdateBlock: 0x15,                      // 21
+    UpdateBlock: 0x15,                      // 21       // todo
     AddPainting: 0x16,                      // 22
     Explode: 0x17,                          // 23
     // LevelSoundEventOld: 0x18,            // 24
     LevelEvent: 0x19,                       // 25
-    BlockEvent: 0x1a,                       // 26
+    BlockEvent: 0x1a,                       // 26       // todo
     EntityEvent: 0x1b,                      // 27
     MobEffect: 0x1c,                        // 28
     UpdateAttributes: 0x1d,                 // 29
@@ -49,7 +49,7 @@ export const ProtocolId = {
     SetHealth: 0x2a,                        // 42
     SetSpawnPosition: 0x2b,                 // 43
     Animate: 0x2c,                          // 44
-    Respawn: 0x2d,                          // 45
+    Respawn: 0x2d,                          // 45       // todo
     ContainerOpen: 0x2e,                    // 46
     ContainerClose: 0x2f,                   // 47
 
