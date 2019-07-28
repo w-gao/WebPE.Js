@@ -1,5 +1,7 @@
 export class ChunkSection {
 
+    private _version: number;
+
     private _blockIds: number[];
     private _blockData: number[];
 
@@ -23,6 +25,16 @@ export class ChunkSection {
 
         return block;
         // return ((block & 0xff) << 4) | data;
+    }
+
+    public setBlock(x: number, y: number, z: number, block: number): void {
+
+        let idx: number = (x << 8) + (z << 4) + y;
+        this._blockIds[idx] = block/* & 0xff*/;
+    }
+
+    set version(value: number) {
+        this._version = value;
     }
 
     set blockIds(value: number[]) {

@@ -5,7 +5,7 @@
 
 import {MinecraftClient} from "./MinecraftClient";
 import {InboundHandler, OutBoundHandler} from "./network";
-import {EventType} from "./event/EventType";
+import {EventType} from "./event";
 
 
 class DefaultInboundHandler extends InboundHandler {

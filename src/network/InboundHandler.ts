@@ -1,14 +1,8 @@
-import {BinaryReader} from "../utils";
-import {Utils} from "../utils";
-import {BatchUtils} from "../utils";
+import {BatchUtils, BinaryReader, Utils} from "../utils";
 import {ProtocolId} from "./Protocol";
 import {MinecraftClient} from "../MinecraftClient";
-import {ResourcePacksInfo} from "../data";
-import {StartGameInfo} from "../data";
-
-import nbt = require("nbt");
-import {Chunk, ChunkSection} from "../world";
-import {World, WorldInfo} from "../world";
+import {ResourcePacksInfo, StartGameInfo} from "../data";
+import {BlockFactory, Chunk, ChunkSection, World, WorldInfo} from "../world";
 import {PlayerLocation} from "../math";
 
 
@@ -124,6 +118,12 @@ export class InboundHandler {
     }
 
     public handleDisconnect(pk: BinaryReader): void {
+
+        let hideDisconnectReason = pk.unpackBoolean();
+        let message = pk.unpackString();
+
+        console.log('Disconnect');
+        !hideDisconnectReason && console.log(`message=${message}`);
 
         this.client.disconnect(true);
     }
@@ -323,6 +323,8 @@ export class InboundHandler {
         console.log(`count=${count}`);
 
         let chunk: Chunk = new Chunk(cx, cz);
+        let blockNames = new Set();         // for testing
+        let palettes = this.client.startGameInfo.blockPalettes;
 
         if (count < 1) {
             console.log('Empty Chunks');
@@ -337,24 +339,86 @@ export class InboundHandler {
             let version = pk.unpackByte();
             console.log(`version=${version}`);
 
-            if (version != 0) {
+            let section = new ChunkSection();
+            section.version = version;
 
-                // 1 and 8 are the newer chunk versions. Ideally we would be using them
-                // because they support more blocks. However, neither Nukkit nor most
-                // web based voxel engines support blocks beyond the 255 limit.
+            if (version == 1 || version == 8) {
 
-                console.log('Unsupported chunk version');
+                // New chunk format is defined at https://gist.github.com/Tomcc/a96af509e275b1af483b25c543cfbf37
+
+                console.log('Using new chunk format!');
+
+                let storageSize = 1;
+                if (version == 8) storageSize = pk.unpackByte();
+
+                for (let storage = 0; storage < storageSize; storage++) {
+
+                    let paletteAndFlag = pk.unpackByte();
+                    let isRuntime = (paletteAndFlag & 1) != 0;
+                    let bitsPerBlock = paletteAndFlag >> 1;
+                    let blocksPerWord = Math.floor(32 / bitsPerBlock);
+                    let wordCount = Math.ceil(4096 / blocksPerWord);
+
+                    let words = new Array(wordCount);
+                    for (let w = 0; w < wordCount; w++) {
+                        words[w] = pk.unpackLInt();
+                    }
+
+                    let palette = [];
+
+                    if (isRuntime) {
+
+                        let paletteSize = pk.unpackVarInt();
+                        palette = new Array(paletteSize);
+
+                        for (let paletteId = 0; paletteId < palette.length; paletteId++) {
+                            palette[paletteId] = pk.unpackVarInt();
+                        }
+
+                        if (paletteSize == 0) {
+                            console.log('Palette size is 0');
+                            continue;
+                        }
+                    }
+
+                    let position = 0;
+                    for (let w = 0; w < wordCount; w++) {
+                        let word = words[w];
+                        for (let block = 0; block < blocksPerWord; block++) {
+                            if (position >= 4096) break;
+
+                            let state = (word >> ((position % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1);
+
+                            let x = (position >> 8) & 0xF;
+                            let y = position & 0xF;
+                            let z = (position >> 4) & 0xF;
+
+                            if (state >= palette.length) continue;
+
+                            let result = palettes.find(p => p.runtimeId == palette[state]);
+                            if (result) {
+                                blockNames.add(y + ': ' + result.name);
+                                section.setBlock(x, y, z, BlockFactory.nameToId(result.name));
+                            }
+
+                            position++;
+                        }
+
+                        if (position >= 4096) break;
+                    }
+                }
 
             } else {
 
                 let blockIds = Array.from(pk.unpack(4096));
                 let data = Array.from(pk.unpack(2048));
 
-                let section = new ChunkSection();
                 section.blockIds = blockIds;
                 section.blockData = data;
-                chunk.setChunkSection(s, section);
             }
+
+            chunk.setChunkSection(s, section);
+            console.log(blockNames);
         }
 
         this.client.world.setChunk(cx, cz, chunk);

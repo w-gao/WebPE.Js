@@ -64,7 +64,6 @@ export class MinecraftClient {
         console.log(ev);
 
         // send login
-        // todo: move this to onMessage once we implement our own handshake sequence
         this._outboundHandler.sendLogin();
 
         this.isConnected = true;
@@ -74,12 +73,8 @@ export class MinecraftClient {
     private onMessage(ev: MessageEvent) {
 
         console.log('onMessage');
+        let pk = new BinaryReader(ev.data);
 
-        // todo: check for MAGIC once we implement our own handshake sequence
-
-        let pk = new BinaryReader(ev.data);         // no need to pool inbound packets for now, b/c they have fixed sizes
-
-        // should be one packet per message
         this._inboundHandler.handlePacket(pk);
     }
 
@@ -94,14 +89,18 @@ export class MinecraftClient {
         this._websocket.send(pk);
     }
 
-    public disconnect(serverInitiated: boolean = false, notify: boolean = true): void {
+    public disconnect(serverInitiated: boolean = false, notify: boolean = true, reason?: string): void {
 
         if (serverInitiated) {
             // WebSocket should be closed by the server
             return;
-        }
+        } else if (notify) {
+            // this.outboundHandler.sendDisconnect();
+            return;
 
-        this._websocket.close(1000, 'client disconnect');
+        } else {
+            this._websocket.close(1000, reason ? reason : 'client disconnect');
+        }
     }
 
     /**
