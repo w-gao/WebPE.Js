@@ -4,8 +4,8 @@
  */
 
 import {MinecraftClient} from "./MinecraftClient";
-import {InboundHandler} from "./network";
-import {OutBoundHandler} from "./network";
+import {InboundHandler, OutBoundHandler} from "./network";
+import {EventType} from "./event/EventType";
 
 
 class DefaultInboundHandler extends InboundHandler {
@@ -35,3 +35,8 @@ client.connect(
     new DefaultInboundHandler(client),
     new DefaultOutboundHandler(client)
 );
+
+// Register events!
+client.on(EventType.PlayerSpawn, () => {
+
+});

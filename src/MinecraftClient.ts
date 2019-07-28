@@ -2,6 +2,8 @@ import {BinaryReader} from "./utils";
 import {InboundHandler} from "./network";
 import {OutBoundHandler} from "./network";
 import {World} from "./world";
+import {EventType} from "./event";
+import EventEmitter = require("events");
 
 export class MinecraftClient {
 
@@ -11,11 +13,10 @@ export class MinecraftClient {
     private _inboundHandler: InboundHandler;
     private _outboundHandler: OutBoundHandler;
 
-    // Callback events
-    public onPlayerSpawn: () => void;
+    // Events
+    private eventEmitter: EventEmitter = new EventEmitter();
 
-
-    // private _connectedToServer: boolean = false;        // Minecraft server; not WebSocket server
+    private _isConnected: boolean = false;
     private _hasSpawned: boolean = false;
 
     private _world: World = null;
@@ -45,6 +46,7 @@ export class MinecraftClient {
         this._websocket.onclose = (ev: CloseEvent) => {
             console.log('onClose');
             console.log(ev);
+            this.isConnected = false;
         };
 
         this._inboundHandler = inboundHandler ? inboundHandler : new InboundHandler(this);
@@ -60,6 +62,8 @@ export class MinecraftClient {
         // send login
         // todo: move this to onMessage once we implement our own handshake sequence
         this._outboundHandler.sendLogin();
+
+        this.isConnected = true;
     }
 
 
@@ -86,9 +90,21 @@ export class MinecraftClient {
         this._websocket.send(pk);
     }
 
-    public disconnect(sendNotification: boolean = true): void {
+    public disconnect(serverInitiated: boolean = false, notify: boolean = true): void {
+
+        if (serverInitiated) {
+            // WebSocket should be closed by the server
+            return;
+        }
 
         this._websocket.close(1000, 'client disconnect');
+    }
+
+    /**
+     * Register an event listener
+     */
+    public on(ev: EventType, callback: (...arg) => void) {
+        this.eventEmitter.on(ev, callback);
     }
 
     /* *** Getters & Setters **/
@@ -101,10 +117,14 @@ export class MinecraftClient {
         return this._outboundHandler;
     }
 
+    get isConnected(): boolean {
+        return this._isConnected;
+    }
 
-    // get connectedToServer(): boolean {
-    //     return this._connectedToServer;
-    // }
+    set isConnected(value: boolean) {
+        this._isConnected = value;
+        if (!value) this.eventEmitter.emit(EventType.PlayerDisconnect);
+    }
 
     get hasSpawned(): boolean {
         return this._hasSpawned;
@@ -112,7 +132,7 @@ export class MinecraftClient {
 
     set hasSpawned(value: boolean) {
         this._hasSpawned = value;
-        if (this.onPlayerSpawn) this.onPlayerSpawn();
+        if (value) this.eventEmitter.emit(EventType.PlayerSpawn);
     }
 
     get world(): World {
