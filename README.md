@@ -36,4 +36,4 @@ through a proxy or a server side plugin.
 | long | long datatype support |
 | node-jose | base64 encode for login packet; (not used for encryption support yet) |
 | pako | zlib library |
-| uuid | Not used yet; UUID |
+| uuid-parse | UUID |

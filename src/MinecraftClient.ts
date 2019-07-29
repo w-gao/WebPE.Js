@@ -147,7 +147,7 @@ export class MinecraftClient {
 
     set hasSpawned(value: boolean) {
         this._hasSpawned = value;
-        if (value) this.eventEmitter.emit(EventType.PlayerSpawn);
+        if (value) this.eventEmitter.emit(EventType.LocalPlayerSpawn);
     }
 
     get currentLocation(): PlayerLocation {

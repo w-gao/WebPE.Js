@@ -37,6 +37,6 @@ client.connect(
 );
 
 // Register events!
-client.on(EventType.PlayerSpawn, () => {
+client.on(EventType.LocalPlayerSpawn, () => {
 
 });

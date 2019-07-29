@@ -8,16 +8,16 @@ export const ProtocolId = {
     PlayStatus: 0x02,
     ServerToClientHandshake: 0x03,
     ClientToServerHandshake: 0x04,
-    Disconnect: 0x05,       // todo
+    Disconnect: 0x05,
     ResourcePacksInfo: 0x06,
     ResourcePackStack: 0x07,
     ResourcePackClientResponse: 0x08,
     Text: 0x09,
     SetTime: 0x0a,                          // 10
     StartGame: 0x0b,                        // 11
-    AddPlayer: 0x0c,                        // 12       // todo
+    AddPlayer: 0x0c,                        // 12
     AddEntity: 0x0d,                        // 13
-    RemoveEntity: 0x0e,                     // 14
+    RemoveEntity: 0x0e,                     // 14       // todo
     AddItemEntity: 0x0f,                    // 15
 
     TakeItemEntity: 0x11,                   // 17

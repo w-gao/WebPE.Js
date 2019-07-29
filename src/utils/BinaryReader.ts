@@ -1,12 +1,10 @@
 import {Buffer} from "buffer";
 import {VarInt} from "./VarInt";
-import {PackIdVersion, ResourcePacksInfo} from "../data";
-import Long = require("long");
-import {BlockVector3} from "../math";
-import {Vector3} from "../math";
-import {GameRule} from "../data";
-import {BlockPalette} from "../data";
+import {BlockPalette, GameRule, PackIdVersion, ResourcePacksInfo} from "../data";
+import {BlockVector3, Vector3} from "../math";
 import {byte, double, float, int, long, short} from "../types";
+import Long = require("long");
+import UUID = require('uuid-parse');
 
 export class BinaryReader {
 
@@ -315,6 +313,11 @@ export class BinaryReader {
         }
 
         return blockPalettes;
+    }
+
+    public unpackUUID(): string {
+
+        return UUID.unparse(this.unpack(16));
     }
 
 

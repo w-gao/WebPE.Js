@@ -61,7 +61,10 @@ export class InboundHandler {
                 this.handleStartGame(pk);
                 break;
             case ProtocolId.AddPlayer:
-                // this.handleAddPlayer(pk);
+                this.handleAddPlayer(pk);
+                break;
+            case ProtocolId.RemoveEntity:
+                this.handleRemoveEntity(pk);
                 break;
             case ProtocolId.MovePlayer:
                 // this.handleMovePlayer(pk);
@@ -319,9 +322,31 @@ export class InboundHandler {
         this.client._setStartGameInfo(playerInfo, new World(worldInfo));
 
 
-        this.client.outboundHandler.sendRequestChunkRadius(startGameInfo.serverChunkTickRange);
+        this.client.outboundHandler.sendRequestChunkRadius(5);
     }
 
+
+    public handleAddPlayer(pk: BinaryReader): void {
+
+        let uuid = pk.unpackUUID();
+        let username = pk.unpackString();
+        let entityIdSelf = pk.unpackVarLong();
+        let runtimeEntityId = pk.unpackUnsignedVarLong();
+        let PlatformChatId = pk.unpackString();
+        let position = pk.unpackVector3();
+        let speed = pk.unpackVector3();
+        let rotation = pk.unpackVector3();      // pitch, yaw, head yaw
+
+        console.log('AddPlayer');
+        console.log(`username=${username},entityIdSelf=${entityIdSelf},PlatformChatId=${PlatformChatId}`);
+
+        this.client.emit(EventType.PlayerAdd, entityIdSelf, position, speed, rotation);
+    }
+
+    public handleRemoveEntity(pk: BinaryReader): void {
+
+
+    }
 
     public handleFullChunkData(pk: BinaryReader): void {
 
