@@ -1,10 +1,8 @@
+import {BlockPalette} from "../data";
+
 export class BlockFactory {
 
-    // private static palettes: BlockPalette[];
-    //
-    // public static setBlockPalette(palettes: BlockPalette[]) {
-    //     this.palettes = palettes;
-    // }
+    public static palettes: BlockPalette[] = [];
 
     public static nameToId(name: string): number {
 

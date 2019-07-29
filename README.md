@@ -17,6 +17,10 @@ through a proxy or a server side plugin.
 
 ##### TODOs
 
+- [X] Event dispatcher
+- [X] Sub-chunk version 8 support
+- [ ] Add/remove players
+- [ ] Move players
 - [ ] Decode FullChunkDataPacket
 - [ ] NBT library
 - [ ] Handshake sequence; ping server etc
@@ -28,6 +32,7 @@ through a proxy or a server side plugin.
 | Package | Description/Usage |
 |:--------|------:|
 | buffer | Packet serialization & deserialization |
+| events | Event system |
 | long | long datatype support |
 | node-jose | base64 encode for login packet; (not used for encryption support yet) |
 | pako | zlib library |

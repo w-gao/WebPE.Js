@@ -5,7 +5,7 @@ import {World} from "./world";
 import {EventType} from "./event";
 import EventEmitter = require("events");
 import {PlayerLocation} from "./math";
-import {StartGameInfo} from "./data";
+import {PlayerInfo} from "./player/PlayerInfo";
 
 export class MinecraftClient {
 
@@ -21,8 +21,8 @@ export class MinecraftClient {
     private _isConnected: boolean = false;
     private _hasSpawned: boolean = false;
 
-    private _startGameInfo: StartGameInfo;
     private _currentLocation: PlayerLocation;
+    private _playerInfo: PlayerInfo;
     private _world: World = null;
 
 
@@ -47,11 +47,7 @@ export class MinecraftClient {
             console.log('onError');
             console.log(ev);
         };
-        this._websocket.onclose = (ev: CloseEvent) => {
-            console.log('onClose');
-            console.log(ev);
-            this.isConnected = false;
-        };
+        this._websocket.onclose = (ev: CloseEvent) => this.onClose(ev);
 
         this._inboundHandler = inboundHandler ? inboundHandler : new InboundHandler(this);
         this._outboundHandler = outboundHandler ? outboundHandler : new OutBoundHandler(this);
@@ -78,6 +74,15 @@ export class MinecraftClient {
         this._inboundHandler.handlePacket(pk);
     }
 
+    private onClose(ev: CloseEvent) {
+        console.log('onClose');
+        console.log(ev);
+
+        if (this.isConnected) {
+            this.disconnect(true);
+        }
+    }
+
     /**
      *
      * @param pk    packet should be recycled when necessary after calling sendPacket()
@@ -91,23 +96,31 @@ export class MinecraftClient {
 
     public disconnect(serverInitiated: boolean = false, notify: boolean = true, reason?: string): void {
 
+        this.isConnected = false;
+        this.eventEmitter.emit(EventType.PlayerDisconnect, reason);
+
         if (serverInitiated) {
             // WebSocket should be closed by the server
             return;
         } else if (notify) {
             // this.outboundHandler.sendDisconnect();
-            return;
-
-        } else {
-            this._websocket.close(1000, reason ? reason : 'client disconnect');
         }
+
+        this._websocket.close(1000, reason ? reason : 'client disconnect');
     }
 
     /**
      * Register an event listener
      */
-    public on(ev: EventType, callback: (...arg) => void) {
+    public on(ev: EventType, callback: (...args) => void) {
         this.eventEmitter.on(ev, callback);
+    }
+
+    /**
+     * Dispatch an event
+     */
+    public emit(ev: EventType, ...args) {
+        this.eventEmitter.emit(ev, ...args);
     }
 
     /* *** Getters & Setters **/
@@ -126,7 +139,6 @@ export class MinecraftClient {
 
     set isConnected(value: boolean) {
         this._isConnected = value;
-        if (!value) this.eventEmitter.emit(EventType.PlayerDisconnect);
     }
 
     get hasSpawned(): boolean {
@@ -138,14 +150,6 @@ export class MinecraftClient {
         if (value) this.eventEmitter.emit(EventType.PlayerSpawn);
     }
 
-    get startGameInfo(): StartGameInfo {
-        return this._startGameInfo;
-    }
-
-    set startGameInfo(value: StartGameInfo) {
-        this._startGameInfo = value;
-    }
-
     get currentLocation(): PlayerLocation {
         return this._currentLocation;
     }
@@ -154,12 +158,18 @@ export class MinecraftClient {
         this._currentLocation = value;
     }
 
+    get playerInfo(): PlayerInfo {
+        return this._playerInfo;
+    }
+
     get world(): World {
         return this._world;
     }
 
-    set world(value: World) {
-        this._world = value;
+    // Internal method
+    _setStartGameInfo(playerInfo: PlayerInfo, world: World) {
+        this._playerInfo = playerInfo;
+        this._world = world;
     }
 
 }

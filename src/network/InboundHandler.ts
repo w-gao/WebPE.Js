@@ -1,9 +1,11 @@
 import {BatchUtils, BinaryReader, Utils} from "../utils";
 import {ProtocolId} from "./Protocol";
 import {MinecraftClient} from "../MinecraftClient";
-import {ResourcePacksInfo, StartGameInfo} from "../data";
+import {ResourcePacksInfo} from "../data";
 import {BlockFactory, Chunk, ChunkSection, World, WorldInfo} from "../world";
 import {PlayerLocation} from "../math";
+import {PlayerInfo} from "../player/PlayerInfo";
+import {EventType} from "../event";
 
 
 /**
@@ -125,7 +127,7 @@ export class InboundHandler {
         console.log('Disconnect');
         !hideDisconnectReason && console.log(`message=${message}`);
 
-        this.client.disconnect(true);
+        this.client.disconnect(true, false, message);
     }
 
     public handleResourcePacksInfo(pk: BinaryReader): void {
@@ -228,7 +230,7 @@ export class InboundHandler {
 
     public handleStartGame(pk: BinaryReader): void {
 
-        let startGameInfo: StartGameInfo = {
+        let startGameInfo = {
 
             entityIdSelf: pk.unpackVarLong(),
             runtimeEntityId: pk.unpackUnsignedVarLong(),
@@ -278,7 +280,10 @@ export class InboundHandler {
 
         console.log('START GAME');
         console.log(startGameInfo);
-        this.client.startGameInfo = startGameInfo;
+
+        // Extract useful data from StartGamePacket
+
+        BlockFactory.palettes = startGameInfo.blockPalettes;
 
         this.client.currentLocation = PlayerLocation.from(
             startGameInfo.position,
@@ -287,10 +292,14 @@ export class InboundHandler {
             startGameInfo.yaw
         );
 
-
         let worldInfo: WorldInfo = {
-            spawn: startGameInfo.spawn,
             seed: startGameInfo.seed,
+            dimension: startGameInfo.dimension,
+            generator: startGameInfo.generator,
+            gamemode: startGameInfo.gamemode,
+            difficulty: startGameInfo.difficulty,
+            spawn: startGameInfo.spawn,
+            dayCycleStopTime: startGameInfo.dayCycleStopTime,
             rainLevel: startGameInfo.rainLevel,
             lightningLevel: startGameInfo.lightningLevel,
             gameRules: startGameInfo.gameRules,
@@ -299,12 +308,18 @@ export class InboundHandler {
             levelId: startGameInfo.levelId,
             worldName: startGameInfo.worldName,
             premiumWorldTemplateId: startGameInfo.premiumWorldTemplateId,
-            blockPalettes: startGameInfo.blockPalettes
         };
 
-        this.client.world = new World(worldInfo);
+        let playerInfo: PlayerInfo = {
+            entityIdSelf: startGameInfo.entityIdSelf,
+            runtimeEntityId: startGameInfo.runtimeEntityId,
+            playerGamemode: startGameInfo.playerGamemode,
+        };
 
-        this.client.outboundHandler.sendRequestChunkRadius(5);
+        this.client._setStartGameInfo(playerInfo, new World(worldInfo));
+
+
+        this.client.outboundHandler.sendRequestChunkRadius(startGameInfo.serverChunkTickRange);
     }
 
 
@@ -324,7 +339,7 @@ export class InboundHandler {
 
         let chunk: Chunk = new Chunk(cx, cz);
         let blockNames = new Set();         // for testing
-        let palettes = this.client.startGameInfo.blockPalettes;
+        let palettes = BlockFactory.palettes;
 
         if (count < 1) {
             console.log('Empty Chunks');
@@ -423,6 +438,7 @@ export class InboundHandler {
 
         this.client.world.setChunk(cx, cz, chunk);
 
+        this.client.emit(EventType.ChunkReceive, chunk);
 
     }
 

@@ -1,11 +1,16 @@
 import {Chunk} from "./Chunk";
 import {BlockVector3} from "../math";
-import {BlockPalette, GameRule} from "../data";
+import {GameRule} from "../data";
 import {float, int} from "../types";
 
 export interface WorldInfo {
-    spawn: BlockVector3,
     seed: int,
+    dimension: int,
+    generator: int,
+    gamemode: int,
+    difficulty: int,
+    spawn: BlockVector3,
+    dayCycleStopTime: int,
     rainLevel: float,
     lightningLevel: float,
     gameRules: GameRule[],
@@ -13,8 +18,7 @@ export interface WorldInfo {
     serverChunkTickRange: int,
     levelId: string,
     worldName: string,
-    premiumWorldTemplateId: string,
-    blockPalettes: BlockPalette[],
+    premiumWorldTemplateId: string
 }
 
 export class World {

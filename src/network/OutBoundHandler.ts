@@ -1,12 +1,13 @@
-import {BinaryWriter, PacketPool} from "../utils";
+import {BatchPool, BinaryWriter, PacketPool} from "../utils";
 import {ProtocolId} from "./Protocol";
-import {BatchPool} from "../utils";
 import {MinecraftClient} from "../MinecraftClient";
 import {util} from "node-jose";
-import base64url = util.base64url;
 import {byte, int} from "../types";
 import {PlayerLocation} from "../math";
+import {EventType} from "../event";
 import Long = require("long");
+import base64url = util.base64url;
+import {LoginCredentials} from "../data";
 
 /**
  * Anything relevant to sending data to the server
@@ -39,7 +40,7 @@ export class OutBoundHandler {
         // });
 
 
-        let credentials = {
+        let credentials: LoginCredentials = {
 
             // these are randomly generated data
 
@@ -49,6 +50,9 @@ export class OutBoundHandler {
             cid: -3911347568285239894,      // ClientRandomId
 
         };
+
+        this.client.emit(EventType.PlayerLoginRequest, credentials);
+
 
         let token = `{"extraData":{"XUID":"${credentials.xuid}","identity":"${credentials.uuid}","displayName":"${credentials.displayName}"}}`;
         let chainData = '{"chain":["header.' + base64url.encode(token) + '.verify"]}';
@@ -120,7 +124,7 @@ export class OutBoundHandler {
 
         const packet = PacketPool.getPacket();
         packet.packUnsignedVarInt(ProtocolId.MovePlayer);
-        packet.packUnsignedVarLong(this.client.startGameInfo.runtimeEntityId);
+        packet.packUnsignedVarLong(this.client.playerInfo.runtimeEntityId);
         packet.packFloat(loc.x);
         packet.packFloat(loc.y);
         packet.packFloat(loc.z);
@@ -145,15 +149,15 @@ export class OutBoundHandler {
     }
 
 
-
-
     /**
      * Helper function
      */
     protected sendPacket(pk: BinaryWriter): void {
 
         this._batchPool.pushPacket(pk);
-        this._batchPool.processBatch();     // todo: when necessary, move this to an update function so we can actually batch packets
+
+        // todo: when necessary, move this to an update function so we can actually batch packets
+        this._batchPool.processBatch();
     }
 
 }
