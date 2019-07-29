@@ -6,3 +6,4 @@ export * from './network';
 export * from './utils';
 export * from './world';
 export * from './MinecraftClient';
+export * from './types';
