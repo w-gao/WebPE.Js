@@ -125,12 +125,12 @@ export class OutBoundHandler {
         const packet = PacketPool.getPacket();
         packet.packUnsignedVarInt(ProtocolId.MovePlayer);
         packet.packUnsignedVarLong(this.client.playerInfo.runtimeEntityId);
-        packet.packFloat(loc.x);
-        packet.packFloat(loc.y);
-        packet.packFloat(loc.z);
-        packet.packFloat(loc.pitch);
-        packet.packFloat(loc.yaw);
-        packet.packFloat(loc.headYaw);
+        packet.packLFloat(loc.x);
+        packet.packLFloat(loc.y);
+        packet.packLFloat(loc.z);
+        packet.packLFloat(loc.pitch);
+        packet.packLFloat(loc.yaw);
+        packet.packLFloat(loc.headYaw);
         packet.packByte(mode);
         packet.packBoolean(onGround);
         packet.packUnsignedVarLong(new Long(0));      // otherRuntimeEntityId

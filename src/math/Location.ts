@@ -6,10 +6,10 @@ export class Location {
     public x: float;
     public y: float;
     public z: float;
-    public yaw: float;
     public pitch: float;
+    public yaw: float;
 
-    constructor(x: float, y: float, z: float, yaw: float, pitch: float) {
+    constructor(x?: float, y?: float, z?: float, pitch?: float, yaw?: float) {
 
         this.x = x;
         this.y = y;
@@ -18,7 +18,7 @@ export class Location {
         this.pitch = pitch;
     }
 
-    public static from(vec: Vector3, yaw: float, pitch: float): Location {
-        return new Location(vec.x, vec.y, vec.z, yaw, pitch);
+    public static from(vec: Vector3, pitch?: float, yaw?: float): Location {
+        return new Location(vec.x, vec.y, vec.z, pitch, yaw);
     }
 }

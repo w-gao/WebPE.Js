@@ -139,11 +139,11 @@ export class BinaryReader {
     public unpackUnsignedVarInt(): long {
 
         let numRead = 0;
-        let result = new Long(0, 0, true);
+        let result = Long.fromInt(0, true);
         let read;
         do {
             read = this.unpackByte();
-            result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
+            result = result.or(Long.fromInt(read & 0b01111111, true).shiftLeft(7 * numRead));
 
             numRead++;
             if (numRead > 5) {
@@ -157,11 +157,11 @@ export class BinaryReader {
     public unpackVarInt(): int {
 
         let numRead = 0;
-        let result = new Long(0);
+        let result = Long.fromInt(0, false);
         let read;
         do {
             read = this.unpackByte();
-            result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
+            result = result.or(Long.fromInt(read & 0b01111111, false).shiftLeft(7 * numRead));
 
             numRead++;
             if (numRead > 5) {
@@ -175,11 +175,11 @@ export class BinaryReader {
     public unpackUnsignedVarLong(): long {
 
         let numRead = 0;
-        let result = new Long(0, 0, true);
+        let result = Long.fromInt(0, true);
         let read;
         do {
             read = this.unpackByte();
-            result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
+            result = result.or(Long.fromInt(read & 0b01111111, true).shiftLeft(7 * numRead));
 
             numRead++;
             if (numRead > 10) {
@@ -193,11 +193,11 @@ export class BinaryReader {
     public unpackVarLong(): long {
 
         let numRead = 0;
-        let result = new Long(0, 0, false);
+        let result = Long.fromInt(0, false);
         let read;
         do {
             read = this.unpackByte();
-            result = result.or(new Long(read & 0b01111111, undefined, true).shiftLeft(7 * numRead));
+            result = result.or(Long.fromInt(read & 0b01111111, false).shiftLeft(7 * numRead));
 
             numRead++;
             if (numRead > 10) {

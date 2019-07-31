@@ -16,6 +16,8 @@ export class BlockFactory {
                 return 2;
             case 'dirt':
                 return 3;
+            case 'cobblestone':
+                return 4;
             case 'bedrock':
                 return 7;
             case 'snow':

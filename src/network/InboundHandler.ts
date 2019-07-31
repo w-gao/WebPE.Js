@@ -66,8 +66,11 @@ export class InboundHandler {
             case ProtocolId.RemoveEntity:
                 this.handleRemoveEntity(pk);
                 break;
+            case ProtocolId.MoveEntity:
+                this.handleMoveEntity(pk);
+                break;
             case ProtocolId.MovePlayer:
-                // this.handleMovePlayer(pk);
+                this.handleMovePlayer(pk);
                 break;
             case ProtocolId.FullChunkData:
                 this.handleFullChunkData(pk);
@@ -284,14 +287,16 @@ export class InboundHandler {
         console.log('START GAME');
         console.log(startGameInfo);
 
+        console.log(startGameInfo.runtimeEntityId.toInt());
+
         // Extract useful data from StartGamePacket
 
         BlockFactory.palettes = startGameInfo.blockPalettes;
 
         this.client.currentLocation = PlayerLocation.from(
             startGameInfo.position,
-            startGameInfo.yaw,
             startGameInfo.pitch,
+            startGameInfo.yaw,
             startGameInfo.yaw
         );
 
@@ -333,19 +338,77 @@ export class InboundHandler {
         let entityIdSelf = pk.unpackVarLong();
         let runtimeEntityId = pk.unpackUnsignedVarLong();
         let PlatformChatId = pk.unpackString();
-        let position = pk.unpackVector3();
+
+        let location = new PlayerLocation();
+        location.x = pk.unpackLFloat();
+        location.y = pk.unpackLFloat();
+        location.z = pk.unpackLFloat();
+
         let speed = pk.unpackVector3();
-        let rotation = pk.unpackVector3();      // pitch, yaw, head yaw
+
+        location.pitch = pk.unpackLFloat();
+        location.yaw = pk.unpackLFloat();
+        location.headYaw = pk.unpackLFloat();
 
         console.log('AddPlayer');
-        console.log(`username=${username},entityIdSelf=${entityIdSelf},PlatformChatId=${PlatformChatId}`);
+        console.log(`username=${username},runtimeEntityId=${runtimeEntityId},PlatformChatId=${PlatformChatId}`);
 
-        this.client.emit(EventType.PlayerAdd, entityIdSelf, position, speed, rotation);
+        this.client.emit(EventType.PlayerAdd, runtimeEntityId, location, speed);
     }
 
     public handleRemoveEntity(pk: BinaryReader): void {
 
 
+    }
+
+    public handleMoveEntity(pk: BinaryReader): void {
+
+        let runtimeEntityId = pk.unpackUnsignedVarLong();
+        let flags = pk.unpackByte();
+        let teleport = (flags & 0x01) != 0;
+        let onGround = (flags & 0x02) != 0;
+        let location = new PlayerLocation();
+        location.x = pk.unpackLFloat();
+        location.y = pk.unpackLFloat();
+        location.z = pk.unpackLFloat();
+        location.pitch = pk.unpackByte() * (360 / 256);
+        location.headYaw = pk.unpackByte() * (360 / 256);
+        location.yaw = pk.unpackByte() * (360 / 256);
+
+        console.log('MoveEntity');
+        console.log(`runtimeEntityId=${runtimeEntityId},teleport=${teleport},onGround=${onGround}`);
+        console.log(location);
+
+        this.client.emit(EventType.EntityMove, runtimeEntityId, location, teleport, onGround);
+    }
+
+    public handleMovePlayer(pk: BinaryReader): void {
+
+        /**
+         * Mode constants
+         * 0        Normal
+         * 1        Reset
+         * 2        Teleport
+         * 3        Rotation
+         */
+
+        let runtimeEntityId = pk.unpackUnsignedVarLong();
+        let location = new PlayerLocation();
+        location.x = pk.unpackLFloat();
+        location.y = pk.unpackLFloat();
+        location.z = pk.unpackLFloat();
+        location.pitch = pk.unpackLFloat();
+        location.yaw = pk.unpackLFloat();
+        location.headYaw = pk.unpackLFloat();
+        let mode = pk.unpackByte();
+        let onGround = pk.unpackBoolean();
+        let otherRuntimeEntityId = pk.unpackUnsignedVarLong();
+
+        console.log('MovePlayer');
+        console.log(`runtimeEntityId=${runtimeEntityId},mode=${mode},onGround=${onGround},otherRuntimeEntityId=${otherRuntimeEntityId}`);
+        console.log(location);
+
+        this.client.emit(EventType.PlayerMove, runtimeEntityId, location, mode, onGround, otherRuntimeEntityId);
     }
 
     public handleFullChunkData(pk: BinaryReader): void {

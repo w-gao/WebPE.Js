@@ -26,17 +26,37 @@ export enum EventType {
      * Calls when AddPlayerPacket is received
      *
      * Arguments
-     * @param entityIdSelf : long
-     * @param position : Vector3
+     * @param runtimeEntityId : long
+     * @param location : PlayerLocation
      * @param speed : Vector3
-     * @param rotation : Vector3       pitch, yaw, head yaw
      */
     PlayerAdd,
 
     /**
      * Calls when MovePlayerPacket is received
+     *
+     * Arguments
+     * @param runtimeEntityId : long
+     * @param location : PlayerLocation
+     * @param mode : byte
+     * @param onGround : boolean
+     * @param otherRuntimeEntityId : long
+     *
+     * Mode constants can be found at InboundHandler#handleMovePlayer
+     * @see ../InboundHandler#handleMovePlayer
      */
     PlayerMove,
+
+    /**
+     * Calls when MoveEntityPacket is received
+     *
+     * Arguments
+     * @param runtimeEntityId : long
+     * @param location : PlayerLocation
+     * @param teleport : boolean
+     * @param onGround : boolean
+     */
+    EntityMove,
 
     /**
      * Calls when EntityRemovePacket is received
