@@ -26,7 +26,7 @@ export class InboundHandler {
     // completely temporary
     private static logPacket(pid: number): boolean {
 
-        return pid != ProtocolId.UpdateBlock && pid != ProtocolId.SetEntityData && pid != ProtocolId.AddEntity && pid != ProtocolId.MoveEntityDelta;
+        return pid != ProtocolId.UpdateBlock && pid != ProtocolId.SetEntityData;
     }
 
     public handlePacket(pk: BinaryReader): void {
@@ -238,7 +238,7 @@ export class InboundHandler {
 
         let startGameInfo = {
 
-            entityIdSelf: pk.unpackVarLong(),
+            entityUniqueId: pk.unpackVarLong(),
             runtimeEntityId: pk.unpackUnsignedVarLong(),
             playerGamemode: pk.unpackVarInt(),
             position: pk.unpackVector3(),
@@ -319,7 +319,7 @@ export class InboundHandler {
         };
 
         let playerInfo: PlayerInfo = {
-            entityIdSelf: startGameInfo.entityIdSelf,
+            entityUniqueId: startGameInfo.entityUniqueId,
             runtimeEntityId: startGameInfo.runtimeEntityId,
             playerGamemode: startGameInfo.playerGamemode,
         };
@@ -335,7 +335,7 @@ export class InboundHandler {
 
         let uuid = pk.unpackUUID();
         let username = pk.unpackString();
-        let entityIdSelf = pk.unpackVarLong();
+        let entityUniqueID = pk.unpackVarLong();
         let runtimeEntityId = pk.unpackUnsignedVarLong();
         let PlatformChatId = pk.unpackString();
 
@@ -358,7 +358,14 @@ export class InboundHandler {
 
     public handleRemoveEntity(pk: BinaryReader): void {
 
+        let entityUniqueID = pk.unpackVarLong();
 
+        console.log('RemoveEntity');
+        console.log(`entityUniqueID=${entityUniqueID}`);
+
+        // In Nukkit, runtimeEntityId and entityUniqueID are the same
+
+        this.client.emit(EventType.EntityRemove, entityUniqueID);
     }
 
     public handleMoveEntity(pk: BinaryReader): void {

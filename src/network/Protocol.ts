@@ -17,12 +17,12 @@ export const ProtocolId = {
     StartGame: 0x0b,                        // 11
     AddPlayer: 0x0c,                        // 12
     AddEntity: 0x0d,                        // 13
-    RemoveEntity: 0x0e,                     // 14       // todo
+    RemoveEntity: 0x0e,                     // 14
     AddItemEntity: 0x0f,                    // 15
 
     TakeItemEntity: 0x11,                   // 17
     MoveEntity: 0x12,                       // 18
-    MovePlayer: 0x13,                       // 19       // todo
+    MovePlayer: 0x13,                       // 19
     RiderJump: 0x14,                        // 20
     UpdateBlock: 0x15,                      // 21       // todo
     AddPainting: 0x16,                      // 22
@@ -47,7 +47,7 @@ export const ProtocolId = {
     SetEntityMotion: 0x28,                  // 40
     SetEntityLink: 0x29,                    // 41
     SetHealth: 0x2a,                        // 42
-    SetSpawnPosition: 0x2b,                 // 43
+    SetSpawnPosition: 0x2b,                 // 43       // todo
     Animate: 0x2c,                          // 44
     Respawn: 0x2d,                          // 45       // todo
     ContainerOpen: 0x2e,                    // 46
@@ -67,8 +67,8 @@ export const ProtocolId = {
     SetCommandsEnabled: 0x3b,               // 59
     SetDifficulty: 0x3c,                    // 60
     ChangeDimension: 0x3d,                  // 61
-    SetPlayerGameType: 0x3e,                // 62
-    PlayerList: 0x3f,                       // 63
+    SetPlayerGameType: 0x3e,                // 62       // todo
+    PlayerList: 0x3f,                       // 63       // todo
 
     SimpleEvent: 0x40,                      // 64
     TelemetryEvent: 0x41,                   // 65
@@ -78,11 +78,11 @@ export const ProtocolId = {
     RequestChunkRadius: 0x45,               // 69
     ChunkRadiusUpdate: 0x46,                // 70
     ItemFrameDropItem: 0x47,                // 71
-    GameRulesChanged: 0x48,                 // 72
+    GameRulesChanged: 0x48,                 // 72       // todo
     Camera: 0x49,                           // 73
     BossEvent: 0x4a,                        // 74
     ShowCredits: 0x4b,                      // 75
-    AvailableCommands: 0x4c,                // 76
+    AvailableCommands: 0x4c,                // 76       // todo
     CommandRequest: 0x4d,                   // 77
     CommandBlockUpdate: 0x4e,               // 78
     CommandOutput: 0x4f,                    // 79
@@ -92,10 +92,10 @@ export const ProtocolId = {
     ResourcePackDataInfo: 0x52,             // 82
     ResourcePackChunkData: 0x53,            // 83
     ResourcePackChunkRequest: 0x54,         // 84
-    Transfer: 0x55,                         // 85
+    Transfer: 0x55,                         // 85       // todo
     PlaySound: 0x56,                        // 86
     StopSound: 0x57,                        // 87
-    SetTitle: 0x58,                         // 88
+    SetTitle: 0x58,                         // 88       // todo
     AddBehaviorTree: 0x59,                  // 89
     StructureBlockUpdate: 0x5a,             // 90
     ShowStoreOffer: 0x5b,                   // 91
@@ -108,10 +108,10 @@ export const ProtocolId = {
     BookEdit: 0x61,                         // 97
     NpcRequest: 0x62,                       // 98
     PhotoTransfer: 0x63,                    // 99
-    ModalFormRequest: 0x64,                 // 100
-    ModalFormResponse: 0x65,                // 101
-    ServerSettingsRequest: 0x66,            // 102
-    ServerSettingsResponse: 0x67,           // 103
+    ModalFormRequest: 0x64,                 // 100       // todo
+    ModalFormResponse: 0x65,                // 101       // todo
+    ServerSettingsRequest: 0x66,            // 102       // todo
+    ServerSettingsResponse: 0x67,           // 103       // todo
     ShowProfile: 0x68,                      // 104
     SetDefaultGameType: 0x69,               // 105
     RemoveObjective: 0x6a,                  // 106

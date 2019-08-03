@@ -60,6 +60,9 @@ export enum EventType {
 
     /**
      * Calls when EntityRemovePacket is received
+     *
+     * Arguments
+     * @param entityUniqueID : long
      */
     EntityRemove,
 

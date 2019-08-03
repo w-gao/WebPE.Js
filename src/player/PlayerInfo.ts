@@ -1,7 +1,7 @@
 import {int, long} from "../types";
 
 export interface PlayerInfo {
-    entityIdSelf: long,
+    entityUniqueId: long,
     runtimeEntityId: long,
     playerGamemode: int,
 }
