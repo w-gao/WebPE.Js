@@ -112,6 +112,20 @@ export class OutBoundHandler {
         this.sendPacket(packet);
     }
 
+    public sendText(type: byte, primaryName: string, message: string) {
+
+        const packet = PacketPool.getPacket();
+        packet.packUnsignedVarInt(ProtocolId.Text);
+        packet.packByte(1);     // type = CHAT
+        packet.packBoolean(false);      // isLocalized
+        packet.packString(primaryName);
+        packet.packString(message);
+        packet.packString("");      // sendersXUID
+        packet.packString("");      // platformIdString
+
+        this.sendPacket(packet);
+    }
+
     public sendMovePlayer(loc: PlayerLocation, mode: byte = 0, onGround: boolean = true) {
 
         /**
