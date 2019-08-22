@@ -19,7 +19,7 @@ through a proxy or a server side plugin.
 
 ![ss1](images/screenshot-1.png?raw=true "Minecraft side")
 
-![ss2](images/screenshot-1.png?raw=true "WebPE side")
+![ss2](images/screenshot-2.png?raw=true "WebPE side")
 
 
 ### Development
