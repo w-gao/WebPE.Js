@@ -81,11 +81,13 @@ export class OutBoundHandler {
         const packet = PacketPool.getPacket();
         packet.packUnsignedVarInt(ProtocolId.Login);
 
-        packet.packInt(354);            // protocol
+        packet.packInt(389);            // protocol
 
         packet.packUnsignedVarInt(chainData.length + skinData.length + 8);      // 2 lengths + 2 LEInt
         packet.packLIntString(chainData);
         packet.packLIntString(skinData);
+
+        console.log('send login' + credentials)
 
         this.sendPacket(packet);
     }
@@ -167,6 +169,10 @@ export class OutBoundHandler {
      * Helper function
      */
     protected sendPacket(pk: BinaryWriter): void {
+
+        this.client.sendPacket(pk.getBuffer())
+
+        return;
 
         this._batchPool.pushPacket(pk);
 
