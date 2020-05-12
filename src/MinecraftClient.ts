@@ -59,13 +59,13 @@ export class MinecraftClient {
         console.log('onOpen');
         console.log(ev);
 
-        setTimeout(() => {
-            // send login
-            this._outboundHandler.sendLogin();
-
-            this.isConnected = true;
-
-        }, 5000)
+        // setTimeout(() => {
+        //     // send login
+        //     this._outboundHandler.sendLogin();
+        //
+        //     this.isConnected = true;
+        //
+        // }, 5000)
     }
 
 

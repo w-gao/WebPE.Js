@@ -81,7 +81,7 @@ export class OutBoundHandler {
         const packet = PacketPool.getPacket();
         packet.packUnsignedVarInt(ProtocolId.Login);
 
-        packet.packInt(389);            // protocol
+        packet.packInt(390);            // protocol
 
         packet.packUnsignedVarInt(chainData.length + skinData.length + 8);      // 2 lengths + 2 LEInt
         packet.packLIntString(chainData);

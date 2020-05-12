@@ -429,14 +429,17 @@ export class InboundHandler {
 
         console.log('Receiving FullChunk<' + cx + ',' + cz + '>');
 
-        let count = pk.unpackByte();
-        console.log(`count=${count}`);
+        // let count = pk.unpackUnsignedVarInt().toNumber();
+        let cacheEnabled = pk.unpackBoolean();
+        console.log(`length=${length}`);
+        console.log(`cacheEnabled=${cacheEnabled}`);
+
 
         let chunk: Chunk = new Chunk(cx, cz);
         let blockNames = new Set();         // for testing
         let palettes = BlockFactory.palettes;
 
-        if (count < 1) {
+        if (length < 1) {
             console.log('Empty Chunks');
 
             // if (this.client.world.getChunk(cx, cz) == undefined)
@@ -444,7 +447,7 @@ export class InboundHandler {
             return;     // !! Might have other info to read??
         }
 
-        for (let s = 0; s < count; s++) {
+        for (let s = 0; s < length; s++) {
 
             let version = pk.unpackByte();
             console.log(`version=${version}`);
