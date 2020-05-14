@@ -1,16 +1,24 @@
+/*
+ * Copyright (c) 2019-2020 w-gao
+ * All Rights Reserved.
+ */
+
 import {BinaryReader} from "./utils";
-import {InboundHandler} from "./network";
-import {OutBoundHandler} from "./network";
+import {InboundHandler, OutBoundHandler} from "./network";
 import {World} from "./world";
 import {EventType} from "./event";
-import EventEmitter = require("events");
 import {PlayerLocation} from "./math";
 import {PlayerInfo} from "./player/PlayerInfo";
+import ProxyClient from "./network/ProxyClient";
+import EventEmitter = require("events");
+import {LoginCredentials} from "./data";
 
 export class MinecraftClient {
 
     private readonly _connectionString: string;
     private _websocket: WebSocket;
+
+    private _proxyClient: ProxyClient;
 
     private _inboundHandler: InboundHandler;
     private _outboundHandler: OutBoundHandler;
@@ -28,10 +36,10 @@ export class MinecraftClient {
 
     constructor(host?: string, port?: number) {
 
-        host = host ? host : '0.0.0.0';
-        port = port ? port : 19132;
+        host = host || '127.0.0.1';
+        port = port || 19132;
 
-        this._connectionString = 'ws://' + host + ':' + port;
+        this._connectionString = `ws://${host}:${port}`;
     }
 
     public connect(inboundHandler?: InboundHandler, outboundHandler?: OutBoundHandler) {
@@ -49,27 +57,51 @@ export class MinecraftClient {
         };
         this._websocket.onclose = (ev: CloseEvent) => this.onClose(ev);
 
-        this._inboundHandler = inboundHandler ? inboundHandler : new InboundHandler(this);
-        this._outboundHandler = outboundHandler ? outboundHandler : new OutBoundHandler(this);
+        this._proxyClient = new ProxyClient(this);
 
+        this._inboundHandler = inboundHandler || new InboundHandler(this);
+        this._outboundHandler = outboundHandler || new OutBoundHandler(this);
     }
 
+    /**
+     * WebSocket connection to the Proxy is established.
+     */
     private onOpen(ev: Event) {
 
         console.log('onOpen');
         console.log(ev);
 
-        // setTimeout(() => {
-        //     // send login
-        //     this._outboundHandler.sendLogin();
-        //
-        //     this.isConnected = true;
-        //
-        // }, 5000)
+        // emit event
+        let target = {
+            host: '127.0.0.1',
+            port: 19132
+        }
+
+        this.emit(EventType.ProxyConnectionRequest, target);
+
+        this._proxyClient.sendConnectionRequest(target.host, target.port);
     }
 
+    /**
+     * Proxy has connected to the target Minecraft server.
+     */
+    public onConnect() {
+
+        console.log('onConnect')
+
+        let cred: LoginCredentials = {displayName: 'WebPE'}
+        this.emit(EventType.PlayerLoginRequest, cred);
+
+        this._proxyClient.sendLogin(cred.displayName);
+    }
 
     private onMessage(ev: MessageEvent) {
+
+        if (typeof ev.data === "string") {
+            // string channel
+            this._proxyClient.handleMessage(ev.data);
+            return;
+        }
 
         console.log('onMessage');
         let pk = new BinaryReader(ev.data);
@@ -91,8 +123,6 @@ export class MinecraftClient {
      * @param pk    packet should be recycled when necessary after calling sendPacket()
      */
     public sendPacket(pk: string | ArrayBufferLike | Blob | ArrayBufferView): void {
-
-        // pk shouldn't be string; however, we support it ;-)
 
         this._websocket.send(pk);
     }

@@ -1,7 +1,15 @@
 export enum EventType {
 
     /**
-     * Calls before LoginPacket is sent
+     * Calls before connection request is sent to the proxy
+     *
+     * Arguments
+     * @param target: Address
+     */
+    ProxyConnectionRequest,
+
+    /**
+     * Calls before login request is sent
      *
      * Arguments
      * @param cred : LoginCredentials
